@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Applications | Smart Internship Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">🎯 InternTracker</div>
+    <div class="nav-links">
+      <a href="/dashboard">Home</a>
+      <a href="/my-applications" class="active">My Applications</a>
+      <a href="/profile">Profile</a>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="welcome-bar">
+      <h2>📋 My Applications</h2>
+      <p>Track all your internship applications here</p>
+    </div>
+
+    {% if applications %}
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th>Internship</th>
+          <th>Company</th>
+          <th>Applied On</th>
+          <th>Deadline</th>
+          <th>Status</th>
+          <th>Update Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in applications %}
+        <tr>
+          <td><a href="/internship/{{ app[6] }}">{{ app[1] }}</a></td>
+          <td>{{ app[2] }}</td>
+          <td>{{ app[5] }}</td>
+          <td><span class="deadline" data-date="{{ app[3] }}">{{ app[3] }}</span></td>
+          <td><span class="badge {{ app[4] }}">{{ app[4] }}</span></td>
+          <td>
+            <form method="POST" action="/update-status/{{ app[0] }}">
+              <select name="status" onchange="this.form.submit()">
+                <option value="Applied"    {% if app[4] == 'Applied'    %}selected{% endif %}>Applied</option>
+                <option value="Interview"  {% if app[4] == 'Interview'  %}selected{% endif %}>Interview</option>
+                <option value="Selected"   {% if app[4] == 'Selected'   %}selected{% endif %}>Selected</option>
+                <option value="Rejected"   {% if app[4] == 'Rejected'   %}selected{% endif %}>Rejected</option>
+              </select>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="empty-state">
+        <p>😕 You haven't applied to any internships yet.</p>
+        <a href="/dashboard" class="btn-primary">Browse Internships</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

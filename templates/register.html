@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register | Smart Internship Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-page">
+
+  <div class="auth-card">
+    <div class="auth-logo">🎯</div>
+    <h1>Create Account</h1>
+    <p class="auth-sub">Start tracking your internships</p>
+
+    {% if error %}
+      <div class="alert error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/register">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" placeholder="Your full name" required />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="you@email.com" required />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required />
+      </div>
+      <div class="form-group">
+        <label>Your Skills <span class="hint">(comma separated, e.g: python, web, data)</span></label>
+        <input type="text" name="skills" placeholder="python, html, data science" required />
+      </div>
+      <button type="submit" class="btn-primary full-width">Create Account</button>
+    </form>
+
+    <p class="auth-switch">Already have an account? <a href="/login">Login here</a></p>
+  </div>
+
+</body>
+</html>

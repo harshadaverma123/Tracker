@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ internship[1] }} | Smart Internship Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">🎯 InternTracker</div>
+    <div class="nav-links">
+      <a href="/dashboard">Home</a>
+      <a href="/my-applications">My Applications</a>
+      <a href="/profile">Profile</a>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+
+    <div class="detail-card">
+      <h1>{{ internship[1] }}</h1>
+      <p class="company-big">🏢 {{ internship[2] }}</p>
+
+      <div class="detail-meta">
+        <span class="meta-item">📁 {{ internship[4] }}</span>
+        <span class="meta-item">💰 {{ internship[5] }}</span>
+        <span class="meta-item deadline" data-date="{{ internship[6] }}">📅 Deadline: {{ internship[6] }}</span>
+      </div>
+
+      <div class="detail-desc">
+        <h3>About this Internship</h3>
+        <p>{{ internship[3] }}</p>
+      </div>
+
+      <div class="detail-actions">
+        <a href="{{ internship[7] }}" target="_blank" class="btn-primary">🔗 Go to Application Page</a>
+        <a href="/apply/{{ internship[0] }}" class="btn-success">✅ I Have Applied</a>
+      </div>
+      <p class="apply-note">Click "I Have Applied" after submitting your application on the company's page. We'll track it for you!</p>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

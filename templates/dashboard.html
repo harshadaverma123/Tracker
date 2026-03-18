@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard | Smart Internship Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-logo">🎯 InternTracker</div>
+    <div class="nav-links">
+      <a href="/dashboard" class="active">Home</a>
+      <a href="/my-applications">My Applications</a>
+      <a href="/profile">Profile</a>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="welcome-bar">
+      <h2>Welcome back, {{ user_name }}! 👋</h2>
+      <p>Here are internships matched to your skills</p>
+    </div>
+
+    <!-- Recommended Section -->
+    {% if recommended %}
+    <div class="section-title">⭐ Recommended For You</div>
+    <div class="cards-grid">
+      {% for i in recommended %}
+      <div class="card recommended">
+        <div class="card-tag">✅ Matches your skills</div>
+        <h3>{{ i[1] }}</h3>
+        <p class="company">🏢 {{ i[2] }}</p>
+        <p class="desc">{{ i[3][:100] }}...</p>
+        <div class="card-footer">
+          <span class="deadline" data-date="{{ i[6] }}">📅 {{ i[6] }}</span>
+          <a href="/internship/{{ i[0] }}" class="btn-primary small">View Details</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- All Internships -->
+    <div class="section-title">🔍 All Internships</div>
+    {% if others %}
+    <div class="cards-grid">
+      {% for i in others %}
+      <div class="card">
+        <h3>{{ i[1] }}</h3>
+        <p class="company">🏢 {{ i[2] }}</p>
+        <p class="desc">{{ i[3][:100] }}...</p>
+        <div class="card-footer">
+          <span class="deadline" data-date="{{ i[6] }}">📅 {{ i[6] }}</span>
+          <a href="/internship/{{ i[0] }}" class="btn-primary small">View Details</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="empty-msg">No other internships available right now.</p>
+    {% endif %}
+
+    {% if not recommended and not others %}
+      <p class="empty-msg">No internships added yet. Check back soon!</p>
+    {% endif %}
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

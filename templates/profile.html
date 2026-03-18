@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile | Smart Internship Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">🎯 InternTracker</div>
+    <div class="nav-links">
+      <a href="/dashboard">Home</a>
+      <a href="/my-applications">My Applications</a>
+      <a href="/profile" class="active">Profile</a>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="welcome-bar">
+      <h2>👤 Edit Profile</h2>
+      <p>Update your name and skills anytime</p>
+    </div>
+
+    <div class="auth-card profile-card">
+      <form method="POST" action="/profile">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" name="name" value="{{ user[1] }}" required />
+        </div>
+        <div class="form-group">
+          <label>Email <span class="hint">(cannot be changed)</span></label>
+          <input type="email" value="{{ user[2] }}" disabled />
+        </div>
+        <div class="form-group">
+          <label>Your Skills <span class="hint">(comma separated)</span></label>
+          <input type="text" name="skills" value="{{ user[4] }}" placeholder="python, html, data science" required />
+        </div>
+        <button type="submit" class="btn-primary full-width">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>
