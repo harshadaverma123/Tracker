@@ -1,71 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Applications | Smart Internship Tracker</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; min-height: 100vh; background: #f5f3ff; }
+
+    /* Confetti canvas */
+    #confetti-canvas { position: fixed; inset: 0; z-index: 999; pointer-events: none; }
+
+    /* Navbar */
+    .navbar { background: linear-gradient(135deg, #3b0764, #7c3aed); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; box-shadow: 0 4px 24px rgba(109,40,217,0.3); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .nav-title { font-size: 16px; font-weight: 700; color: #fff; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+    .nav-link { color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 500; text-decoration: none; padding: 7px 16px; border-radius: 10px; transition: all 0.2s; }
+    .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-logout { background: rgba(255,255,255,0.12); color: #fff; font-size: 13px; font-weight: 600; padding: 7px 18px; border-radius: 10px; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; }
+    .nav-logout:hover { background: rgba(255,255,255,0.25); }
+
+    .main { max-width: 1000px; margin: 0 auto; padding: 2.5rem 2rem; }
+
+    /* Page header */
+    .page-header { background: linear-gradient(135deg, #3b0764, #6d28d9, #7c3aed); border-radius: 24px; padding: 2.2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; }
+    .page-header::before { content: ''; position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.06); border-radius: 50%; }
+    .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #fff; margin-bottom: 6px; }
+    .page-header p { font-size: 14px; color: rgba(255,255,255,0.55); }
+    .header-pickup { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 10px 16px; font-size: 13px; font-style: italic; color: #e9d5ff; margin-top: 1rem; animation: fadeIn 0.6s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    .header-emoji { font-size: 56px; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.3)); animation: float 4s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    /* Mini stats */
+    .mini-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 1.5rem; }
+    .mini-card { background: #fff; border-radius: 16px; padding: 1.2rem; border: 1px solid #ede9fe; text-align: center; box-shadow: 0 2px 12px rgba(109,40,217,0.06); transition: transform 0.2s; }
+    .mini-card:hover { transform: translateY(-3px); }
+    .mini-num { font-size: 26px; font-weight: 700; color: #3b0764; }
+    .mini-lbl { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-section { background: #fff; border-radius: 20px; padding: 1.5rem 2rem; border: 1px solid #ede9fe; box-shadow: 0 2px 16px rgba(109,40,217,0.07); margin-bottom: 1.5rem; }
+    .progress-heading { font-size: 14px; font-weight: 600; color: #1e1b4b; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 6px; }
+    .progress-steps { display: flex; align-items: center; width: 100%; }
+    .step { text-align: center; position: relative; flex-shrink: 0; }
+    .step-circle { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; margin: 0 auto 6px; border: 2px solid #ede9fe; background: #f5f3ff; color: #c4b5fd; transition: all 0.4s ease; }
+    .step.done .step-circle { background: linear-gradient(135deg,#6d28d9,#8b5cf6); border-color: #6d28d9; color: #fff; box-shadow: 0 4px 14px rgba(109,40,217,0.4); }
+    .step.active .step-circle { background: #fff; border-color: #6d28d9; color: #6d28d9; box-shadow: 0 0 0 4px rgba(109,40,217,0.12); }
+    .step.green .step-circle { background: linear-gradient(135deg,#16a34a,#22c55e); border-color: #16a34a; color: #fff; box-shadow: 0 4px 14px rgba(22,163,74,0.4); }
+    .step.red .step-circle { background: linear-gradient(135deg,#dc2626,#ef4444); border-color: #dc2626; color: #fff; box-shadow: 0 4px 14px rgba(220,38,38,0.4); }
+    .step-label { font-size: 11px; color: #94a3b8; font-weight: 500; white-space: nowrap; }
+    .step.done .step-label,.step.active .step-label { color: #6d28d9; font-weight: 600; }
+    .step.green .step-label { color: #16a34a; font-weight: 600; }
+    .step.red .step-label { color: #dc2626; font-weight: 600; }
+    .step-line { flex: 1; height: 3px; background: #ede9fe; margin-bottom: 24px; transition: background 0.4s; }
+    .step-line.done { background: linear-gradient(90deg,#6d28d9,#8b5cf6); }
+    .step-line.green { background: linear-gradient(90deg,#16a34a,#22c55e); }
+
+    /* ── APPLICATION CARDS ── */
+    .section-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #1e1b4b; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 8px; }
+    .apps-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .app-card { background: #fff; border-radius: 20px; padding: 1.5rem; border: 1px solid #ede9fe; box-shadow: 0 2px 16px rgba(109,40,217,0.06); display: flex; align-items: center; gap: 1.5rem; transition: all 0.3s ease; position: relative; overflow: hidden; border-left: 5px solid #c4b5fd; }
+    .app-card:hover { transform: translateX(4px); box-shadow: 0 8px 30px rgba(109,40,217,0.12); }
+
+    /* ── COLOR CODED CARDS ── */
+    .app-card.offered  { border-left: 5px solid #16a34a !important; background: linear-gradient(90deg,#f0fdf4,#fff) !important; box-shadow: 0 4px 20px rgba(22,163,74,0.1) !important; }
+    .app-card.rejected { border-left: 5px solid #dc2626 !important; background: linear-gradient(90deg,#fef2f2,#fff) !important; box-shadow: 0 4px 20px rgba(220,38,38,0.1) !important; }
+    .app-card.interview{ border-left: 5px solid #d97706 !important; background: linear-gradient(90deg,#fffbeb,#fff) !important; box-shadow: 0 4px 20px rgba(217,119,6,0.1) !important; }
+    .app-card.applied  { border-left: 5px solid #6d28d9 !important; background: linear-gradient(90deg,#f5f3ff,#fff) !important; }
+
+    .app-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+    .app-icon.offered  { background: linear-gradient(135deg,#dcfce7,#bbf7d0); }
+    .app-icon.rejected { background: linear-gradient(135deg,#fee2e2,#fecaca); }
+    .app-icon.interview{ background: linear-gradient(135deg,#fef3c7,#fde68a); }
+    .app-icon.applied  { background: linear-gradient(135deg,#f5f3ff,#ede9fe); }
+
+    .app-info { flex: 1; }
+    .app-title { font-size: 16px; font-weight: 700; color: #1e1b4b; margin-bottom: 4px; }
+    .app-company { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    .app-company.offered  { color: #16a34a; }
+    .app-company.rejected { color: #dc2626; }
+    .app-company.interview{ color: #d97706; }
+    .app-company.applied  { color: #6d28d9; }
+    .app-meta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .app-meta span { font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 4px; }
+
+    /* ── COUNTDOWN BADGE ── */
+    .countdown-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+    .urgent { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; animation: urgentPulse 1s ease-in-out infinite; }
+    .soon   { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .ok     { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .passed { background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; }
+    @keyframes urgentPulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+    .app-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
+
+    /* Status badge */
+    .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-offered  { background: #f0fdf4; color: #16a34a; border: 1.5px solid #86efac; }
+    .badge-rejected { background: #fef2f2; color: #dc2626; border: 1.5px solid #fca5a5; }
+    .badge-interview{ background: #fffbeb; color: #d97706; border: 1.5px solid #fcd34d; }
+    .badge-applied  { background: #f5f3ff; color: #6d28d9; border: 1.5px solid #c4b5fd; }
+
+    /* Update form */
+    .update-form { display: flex; gap: 6px; align-items: center; }
+    select { padding: 6px 10px; border-radius: 10px; border: 1.5px solid #ede9fe; font-family: 'DM Sans',sans-serif; font-size: 12px; color: #6d28d9; background: #f5f3ff; outline: none; cursor: pointer; transition: all 0.2s; }
+    select:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
+    .update-btn { background: linear-gradient(135deg,#6d28d9,#8b5cf6); color: #fff; border: none; border-radius: 10px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans',sans-serif; transition: all 0.2s; }
+    .update-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(109,40,217,0.35); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 4rem 2rem; background: #fff; border-radius: 24px; border: 2px dashed #ede9fe; }
+    .empty-icon { font-size: 64px; margin-bottom: 1rem; display: block; animation: float 4s ease-in-out infinite; }
+    .empty-state h3 { font-size: 20px; font-weight: 700; color: #1e1b4b; margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; color: #94a3b8; margin-bottom: 1.5rem; }
+    .empty-btn { display: inline-block; background: linear-gradient(135deg,#6d28d9,#8b5cf6); color: #fff; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: 12px; text-decoration: none; box-shadow: 0 6px 20px rgba(109,40,217,0.3); transition: all 0.2s; }
+    .empty-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(109,40,217,0.45); }
+
+    /* Celebration popup */
+    .celebration { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 998; align-items: center; justify-content: center; }
+    .celebration.show { display: flex; }
+    .celebration-box { background: #fff; border-radius: 28px; padding: 3rem 2.5rem; text-align: center; max-width: 380px; box-shadow: 0 30px 80px rgba(0,0,0,0.3); animation: popIn 0.5s cubic-bezier(0.16,1,0.3,1); }
+    @keyframes popIn { from{opacity:0;transform:scale(0.8)} to{opacity:1;transform:scale(1)} }
+    .celebration-emoji { font-size: 64px; display: block; margin-bottom: 1rem; animation: bounce 0.6s ease infinite alternate; }
+    @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-12px)} }
+    .celebration-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: #1e1b4b; margin-bottom: 8px; }
+    .celebration-sub { font-size: 14px; color: #94a3b8; margin-bottom: 1.5rem; line-height: 1.6; }
+    .celebration-close { background: linear-gradient(135deg,#6d28d9,#8b5cf6); color: #fff; border: none; border-radius: 12px; padding: 12px 28px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans',sans-serif; box-shadow: 0 6px 20px rgba(109,40,217,0.35); }
+
+    @media (max-width: 700px) { .mini-stats { grid-template-columns: repeat(2,1fr); } .app-card { flex-direction: column; align-items: flex-start; } .app-right { align-items: flex-start; } }
+  </style>
 </head>
 <body>
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Celebration Popup -->
+  <div class="celebration" id="celebration">
+    <div class="celebration-box">
+      <span class="celebration-emoji">🎉</span>
+      <div class="celebration-title">Congratulations! 🎊</div>
+      <div class="celebration-sub">You got selected for an internship!<br>Your hard work paid off! Keep shining! 💜</div>
+      <button class="celebration-close" onclick="closeCelebration()">Woohoo! Close 🚀</button>
+    </div>
+  </div>
 
   <nav class="navbar">
-    <div class="nav-logo">🎯 InternTracker</div>
+    <div class="nav-logo">
+      <div class="nav-icon">🎯</div>
+      <span class="nav-title">Smart Internship Tracker</span>
+    </div>
     <div class="nav-links">
-      <a href="/dashboard">Home</a>
-      <a href="/my-applications" class="active">My Applications</a>
-      <a href="/profile">Profile</a>
-      <a href="/logout" class="btn-logout">Logout</a>
+      <a href="/dashboard" class="nav-link">🏠 Dashboard</a>
+      <a href="/my-applications" class="nav-link active">📋 My Applications</a>
+      <a href="/profile" class="nav-link">👤 Profile</a>
+      <a href="/logout" class="nav-logout">Logout →</a>
     </div>
   </nav>
 
-  <div class="container">
-    <div class="welcome-bar">
-      <h2>📋 My Applications</h2>
-      <p>Track all your internship applications here</p>
+  <div class="main">
+    <div class="page-header">
+      <div>
+        <h1>My Applications 📋</h1>
+        <p>Track every application you have submitted</p>
+        <div class="header-pickup" id="pickup">Loading...</div>
+      </div>
+      <div class="header-emoji">📊</div>
     </div>
 
-    {% if applications %}
-    <table class="app-table">
-      <thead>
-        <tr>
-          <th>Internship</th>
-          <th>Company</th>
-          <th>Applied On</th>
-          <th>Deadline</th>
-          <th>Status</th>
-          <th>Update Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for app in applications %}
-        <tr>
-          <td><a href="/internship/{{ app[6] }}">{{ app[1] }}</a></td>
-          <td>{{ app[2] }}</td>
-          <td>{{ app[5] }}</td>
-          <td><span class="deadline" data-date="{{ app[3] }}">{{ app[3] }}</span></td>
-          <td><span class="badge {{ app[4] }}">{{ app[4] }}</span></td>
-          <td>
-            <form method="POST" action="/update-status/{{ app[0] }}">
-              <select name="status" onchange="this.form.submit()">
-                <option value="Applied"    {% if app[4] == 'Applied'    %}selected{% endif %}>Applied</option>
-                <option value="Interview"  {% if app[4] == 'Interview'  %}selected{% endif %}>Interview</option>
-                <option value="Selected"   {% if app[4] == 'Selected'   %}selected{% endif %}>Selected</option>
-                <option value="Rejected"   {% if app[4] == 'Rejected'   %}selected{% endif %}>Rejected</option>
-              </select>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-      <div class="empty-state">
-        <p>😕 You haven't applied to any internships yet.</p>
-        <a href="/dashboard" class="btn-primary">Browse Internships</a>
+    <!-- Stats -->
+    <div class="mini-stats">
+      <div class="mini-card"><div class="mini-num">{{ applications|length }}</div><div class="mini-lbl">Total Applied</div></div>
+      <div class="mini-card"><div class="mini-num" style="color:#d97706">{{ applications|length }}</div><div class="mini-lbl">In Progress</div></div>
+      <div class="mini-card"><div class="mini-num" style="color:#16a34a">0</div><div class="mini-lbl">Offered 🎉</div></div>
+      <div class="mini-card"><div class="mini-num" style="color:#dc2626">0</div><div class="mini-lbl">Rejected</div></div>
+    </div>
+
+    <!-- Progress Journey Bar -->
+    <div class="progress-section">
+      <div class="progress-heading">🗺️ Your Application Journey</div>
+      <div class="progress-steps" id="progress-steps">
+        <div class="step done" id="step-applied">
+          <div class="step-circle">📝</div>
+          <div class="step-label">Applied</div>
+        </div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step" id="step-review">
+          <div class="step-circle">👀</div>
+          <div class="step-label">Under Review</div>
+        </div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step" id="step-interview">
+          <div class="step-circle">🤝</div>
+          <div class="step-label">Interview</div>
+        </div>
+        <div class="step-line" id="line-3"></div>
+        <div class="step" id="step-offered">
+          <div class="step-circle">🏆</div>
+          <div class="step-label">Offered</div>
+        </div>
       </div>
+    </div>
+
+    <div class="section-title">📋 Your Applications</div>
+
+    {% if applications %}
+    <div class="apps-list">
+      {% for app in applications %}
+      {% set status = app[4]|lower %}
+      <div class="app-card {{ status }}" id="card-{{ app[0] }}">
+
+        <!-- Icon -->
+        <div class="app-icon {{ status }}">
+          {% if status == 'offered' %}🏆
+          {% elif status == 'rejected' %}😔
+          {% elif status == 'interview' %}🤝
+          {% else %}📋{% endif %}
+        </div>
+
+        <!-- Info -->
+        <div class="app-info">
+          <div class="app-title">{{ app[1] }}</div>
+          <div class="app-company {{ status }}">{{ app[2] }}</div>
+          <div class="app-meta">
+            <span>📅 Deadline: {{ app[3] }}</span>
+            <span>🗓 Applied: {{ app[5] }}</span>
+            <!-- Countdown badge -->
+            <span class="countdown-badge" id="countdown-{{ app[0] }}" data-deadline="{{ app[3] }}">⏳ Calculating...</span>
+          </div>
+        </div>
+
+        <!-- Right side -->
+        <div class="app-right">
+          <!-- Status badge -->
+          <span class="status-badge badge-{{ status }}">
+            {% if status == 'offered' %}🎉 Offered!
+            {% elif status == 'rejected' %}❌ Rejected
+            {% elif status == 'interview' %}🤝 Interview
+            {% else %}📋 Applied{% endif %}
+          </span>
+          <!-- Update form -->
+          <form method="POST" action="/update-status/{{ app[0] }}" class="update-form">
+            <select name="status">
+              <option {% if app[4] == 'Applied' %}selected{% endif %}>Applied</option>
+              <option {% if app[4] == 'Interview' %}selected{% endif %}>Interview</option>
+              <option {% if app[4] == 'Offered' %}selected{% endif %}>Offered</option>
+              <option {% if app[4] == 'Rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+            <button type="submit" class="update-btn">Update</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <span class="empty-icon">🎯</span>
+      <h3>No applications yet!</h3>
+      <p>You haven't applied to any internship yet.<br>Go find your dream internship now!</p>
+      <a href="/dashboard" class="empty-btn">Browse Internships →</a>
+    </div>
     {% endif %}
   </div>
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script>
+    /* ── PICKUP LINES ── */
+    const lines = [
+      "Every application is one step closer to your dream! 💜",
+      "Are you a job offer? Because I've been waiting for you! 📩",
+      "Don't stop applying — your yes is coming! 🌟",
+      "Keep going — success is just one application away! 🚀",
+      "Are you an offer letter? Because you'd make my day! 💌",
+      "Your dream internship is searching for you too! 🎯"
+    ];
+    let idx = 0;
+    const el = document.getElementById('pickup');
+    function showLine() { el.style.animation='none'; el.offsetHeight; el.style.animation='fadeIn 0.6s ease'; el.textContent='💬 '+lines[idx]; idx=(idx+1)%lines.length; }
+    showLine(); setInterval(showLine, 3500);
+
+    /* ── COUNTDOWN BADGES ── */
+    document.querySelectorAll('.countdown-badge').forEach(badge => {
+      const deadline = new Date(badge.dataset.deadline);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const diff = Math.ceil((deadline - today) / (1000*60*60*24));
+      if (diff < 0) {
+        badge.textContent = '⌛ Deadline passed';
+        badge.className = 'countdown-badge passed';
+      } else if (diff === 0) {
+        badge.textContent = '🔥 Due today!';
+        badge.className = 'countdown-badge urgent';
+      } else if (diff <= 3) {
+        badge.textContent = `🔥 ${diff} day${diff>1?'s':''} left!`;
+        badge.className = 'countdown-badge urgent';
+      } else if (diff <= 7) {
+        badge.textContent = `⏰ ${diff} days left`;
+        badge.className = 'countdown-badge soon';
+      } else {
+        badge.textContent = `✅ ${diff} days left`;
+        badge.className = 'countdown-badge ok';
+      }
+    });
+
+    /* ── PROGRESS BAR ── */
+    const statuses = [...document.querySelectorAll('.app-card')].map(c => {
+      if (c.classList.contains('offered'))   return 'offered';
+      if (c.classList.contains('rejected'))  return 'rejected';
+      if (c.classList.contains('interview')) return 'interview';
+      return 'applied';
+    });
+    const hasOffered   = statuses.includes('offered');
+    const hasInterview = statuses.includes('interview');
+    const hasRejected  = statuses.includes('rejected');
+    if (hasOffered) {
+      ['step-review','step-interview'].forEach(id => { const s=document.getElementById(id); s.classList.add('done'); });
+      document.getElementById('line-1').classList.add('done');
+      document.getElementById('line-2').classList.add('done');
+      document.getElementById('line-3').classList.add('green');
+      document.getElementById('step-offered').classList.add('green');
+    } else if (hasInterview) {
+      document.getElementById('step-review').classList.add('done');
+      document.getElementById('line-1').classList.add('done');
+      document.getElementById('line-2').classList.add('done');
+      document.getElementById('step-interview').classList.add('active');
+    } else if (statuses.length > 0) {
+      document.getElementById('step-review').classList.add('active');
+      document.getElementById('line-1').classList.add('done');
+    }
+
+    /* ── CONFETTI ── */
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => { canvas.width=window.innerWidth; canvas.height=window.innerHeight; });
+    let confetti = [], running = false;
+    const colors = ['#6d28d9','#a855f7','#ec4899','#f59e0b','#10b981','#3b82f6','#f97316'];
+    function startConfetti() {
+      running = true;
+      confetti = Array.from({length:150}, () => ({
+        x: Math.random()*canvas.width, y: -10,
+        w: 8+Math.random()*8, h: 4+Math.random()*4,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        speed: 3+Math.random()*4,
+        angle: Math.random()*Math.PI*2,
+        spin: (Math.random()-.5)*.15,
+        swing: Math.random()*3
+      }));
+      animateConfetti();
+      setTimeout(stopConfetti, 4000);
+    }
+    function animateConfetti() {
+      if (!running) return;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      confetti.forEach(c => {
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.angle);
+        ctx.fillStyle = c.color;
+        ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
+        ctx.restore();
+        c.y += c.speed; c.x += Math.sin(c.swing)*2; c.angle += c.spin; c.swing += .1;
+      });
+      confetti = confetti.filter(c => c.y < canvas.height);
+      requestAnimationFrame(animateConfetti);
+    }
+    function stopConfetti() { running=false; ctx.clearRect(0,0,canvas.width,canvas.height); }
+
+    /* ── CELEBRATION POPUP ── */
+    function closeCelebration() {
+      document.getElementById('celebration').classList.remove('show');
+      stopConfetti();
+    }
+
+    /* Auto show celebration if any card is Offered */
+    window.addEventListener('load', () => {
+      if (document.querySelector('.app-card.offered')) {
+        setTimeout(() => {
+          document.getElementById('celebration').classList.add('show');
+          startConfetti();
+        }, 800);
+      }
+    });
+  </script>
 </body>
 </html>

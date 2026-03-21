@@ -1,47 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profile | Smart Internship Tracker</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; min-height: 100vh; background: #f5f3ff; }
+    .navbar { background: linear-gradient(135deg, #3b0764, #7c3aed); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; box-shadow: 0 4px 24px rgba(109,40,217,0.3); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .nav-title { font-size: 16px; font-weight: 700; color: #fff; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+    .nav-link { color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 500; text-decoration: none; padding: 7px 16px; border-radius: 10px; transition: all 0.2s; }
+    .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-logout { background: rgba(255,255,255,0.12); color: #fff; font-size: 13px; font-weight: 600; padding: 7px 18px; border-radius: 10px; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; }
+    .nav-logout:hover { background: rgba(255,255,255,0.25); }
+    .main { max-width: 800px; margin: 0 auto; padding: 2.5rem 2rem; }
+
+    /* Profile hero */
+    .profile-hero {
+      background: linear-gradient(135deg, #3b0764, #6d28d9, #7c3aed);
+      border-radius: 24px; padding: 2.5rem;
+      margin-bottom: 2rem; position: relative; overflow: hidden;
+      text-align: center;
+    }
+    .profile-hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 220px; height: 220px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+    .profile-hero::after { content: ''; position: absolute; bottom: -60px; left: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.04); border-radius: 50%; }
+    .avatar {
+      width: 90px; height: 90px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px; margin: 0 auto 1rem;
+      position: relative; z-index: 1;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .profile-name { font-family: 'DM Serif Display', serif; font-size: 26px; color: #fff; margin-bottom: 6px; position: relative; z-index: 1; }
+    .profile-email { font-size: 14px; color: rgba(255,255,255,0.55); margin-bottom: 1rem; position: relative; z-index: 1; }
+    .profile-pickup { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 10px 20px; font-size: 13px; font-style: italic; color: #e9d5ff; display: inline-block; animation: fadeIn 0.6s ease; position: relative; z-index: 1; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+    /* Cards */
+    .card { background: #fff; border-radius: 20px; padding: 2rem; border: 1px solid #ede9fe; box-shadow: 0 2px 16px rgba(109,40,217,0.07); margin-bottom: 1.5rem; }
+    .card-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: #1e1b4b; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; padding-bottom: 1rem; border-bottom: 1px solid #f5f3ff; }
+
+    /* Info rows */
+    .info-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f3ff; }
+    .info-row:last-child { border-bottom: none; }
+    .info-icon { width: 36px; height: 36px; background: #f5f3ff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 14px; flex-shrink: 0; }
+    .info-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+    .info-value { font-size: 15px; font-weight: 500; color: #1e1b4b; }
+
+    /* Skills */
+    .skills-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .skill-tag { background: #f5f3ff; color: #6d28d9; font-size: 13px; font-weight: 500; padding: 6px 16px; border-radius: 20px; border: 1px solid #ede9fe; }
+
+    /* Edit form */
+    .form-group { margin-bottom: 1.2rem; }
+    label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 7px; }
+    input, textarea { width: 100%; padding: 12px 16px; background: #fafafa; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: #1e1b4b; outline: none; transition: all 0.22s; }
+    textarea { resize: none; height: 80px; }
+    input::placeholder, textarea::placeholder { color: #d1d5db; }
+    input:focus, textarea:focus { border-color: #8b5cf6; background: #fff; box-shadow: 0 0 0 4px rgba(139,92,246,0.1); }
+    .btn { background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; padding: 12px 28px; cursor: pointer; font-family: 'DM Sans', sans-serif; box-shadow: 0 6px 20px rgba(109,40,217,0.3); transition: all 0.25s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(109,40,217,0.45); }
+
+    /* ── RESUME UPLOAD ── */
+    .resume-drop {
+      border: 2px dashed #c4b5fd;
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      background: #faf5ff;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+    }
+    .resume-drop:hover { border-color: #8b5cf6; background: #f5f0ff; }
+    .resume-drop.dragover { border-color: #6d28d9; background: #ede9fe; transform: scale(1.01); }
+    .resume-drop-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+    .resume-drop-title { font-size: 15px; font-weight: 600; color: #1e1b4b; margin-bottom: 4px; }
+    .resume-drop-sub { font-size: 12px; color: #94a3b8; margin-bottom: 14px; }
+    .resume-file-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .resume-browse-btn { display: inline-block; background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff; font-size: 13px; font-weight: 600; padding: 9px 22px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 14px rgba(109,40,217,0.3); pointer-events: none; }
+    .resume-selected { display: none; margin-top: 12px; padding: 10px 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; font-size: 13px; color: #16a34a; font-weight: 500; align-items: center; gap: 8px; }
+    .resume-selected.show { display: flex; }
+
+    /* Existing resume card */
+    .resume-card { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #c4b5fd; border-radius: 16px; padding: 1.2rem 1.5rem; display: flex; align-items: center; gap: 14px; margin-bottom: 1.2rem; }
+    .resume-card-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #6d28d9, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .resume-card-info { flex: 1; }
+    .resume-card-name { font-size: 14px; font-weight: 600; color: #1e1b4b; margin-bottom: 3px; }
+    .resume-card-sub { font-size: 12px; color: #7c3aed; }
+    .resume-actions { display: flex; gap: 8px; }
+    .resume-view-btn { background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff; font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 8px; text-decoration: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .resume-view-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(109,40,217,0.35); }
+    .resume-delete-btn { background: #fef2f2; color: #dc2626; font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 8px; text-decoration: none; border: 1px solid #fecaca; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .resume-delete-btn:hover { background: #dc2626; color: #fff; }
+    .upload-resume-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 1rem; box-shadow: 0 6px 20px rgba(109,40,217,0.3); transition: all 0.25s; }
+    .upload-resume-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(109,40,217,0.45); }
+
+    /* Stats row */
+    .mini-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 1.5rem; }
+    .mini-card { background: #fff; border-radius: 16px; padding: 1.2rem; border: 1px solid #ede9fe; text-align: center; box-shadow: 0 2px 12px rgba(109,40,217,0.06); }
+    .mini-num { font-size: 26px; font-weight: 700; color: #3b0764; }
+    .mini-lbl { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  </style>
 </head>
 <body>
-
   <nav class="navbar">
-    <div class="nav-logo">🎯 InternTracker</div>
+    <div class="nav-logo">
+      <div class="nav-icon">🎯</div>
+      <span class="nav-title">Smart Internship Tracker</span>
+    </div>
     <div class="nav-links">
-      <a href="/dashboard">Home</a>
-      <a href="/my-applications">My Applications</a>
-      <a href="/profile" class="active">Profile</a>
-      <a href="/logout" class="btn-logout">Logout</a>
+      <a href="/dashboard" class="nav-link">🏠 Dashboard</a>
+      <a href="/my-applications" class="nav-link">📋 My Applications</a>
+      <a href="/profile" class="nav-link active">👤 Profile</a>
+      <a href="/logout" class="nav-logout">Logout →</a>
     </div>
   </nav>
 
-  <div class="container">
-    <div class="welcome-bar">
-      <h2>👤 Edit Profile</h2>
-      <p>Update your name and skills anytime</p>
+  <div class="main">
+    <!-- Profile Hero -->
+    <div class="profile-hero">
+      <div class="avatar">👤</div>
+      <div class="profile-name">{{ user[1] }}</div>
+      <div class="profile-email">{{ user[2] }}</div>
+      <div class="profile-pickup" id="pickup">Loading...</div>
     </div>
 
-    <div class="auth-card profile-card">
+    <!-- Activity Stats -->
+    <div class="mini-stats">
+      <div class="mini-card"><div class="mini-num">0</div><div class="mini-lbl">Applications</div></div>
+      <div class="mini-card"><div class="mini-num">0</div><div class="mini-lbl">Saved</div></div>
+      <div class="mini-card"><div class="mini-num">0</div><div class="mini-lbl">Shortlisted</div></div>
+    </div>
+
+    <!-- Profile Info -->
+    <div class="card">
+      <div class="card-title">👤 Profile Information</div>
+      <div class="info-row">
+        <div class="info-icon">✉️</div>
+        <div><div class="info-label">Email</div><div class="info-value">{{ user[2] }}</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🧑</div>
+        <div><div class="info-label">Full Name</div><div class="info-value">{{ user[1] }}</div></div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">📄</div>
+        <div>
+          <div class="info-label">Resume</div>
+          <div class="info-value">
+            {% if user[4] %}
+              <span style="color:#16a34a; font-weight:600;">✅ Uploaded</span>
+            {% else %}
+              <span style="color:#94a3b8;">Not uploaded yet</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🛠️</div>
+        <div>
+          <div class="info-label">Skills</div>
+          <div class="skills-wrap" style="margin-top:6px">
+            {% if user[5] %}
+              {% for skill in user[5].split(',') %}
+                <span class="skill-tag">{{ skill.strip() }}</span>
+              {% endfor %}
+            {% else %}
+              <span style="color:#94a3b8;font-size:14px">No skills added yet</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resume Upload Card -->
+    <div class="card">
+      <div class="card-title">📄 My Resume</div>
+
+      {% if user[4] %}
+      <!-- Resume already uploaded -->
+      <div class="resume-card">
+        <div class="resume-card-icon">📄</div>
+        <div class="resume-card-info">
+          <div class="resume-card-name">{{ user[4] }}</div>
+          <div class="resume-card-sub">✅ Resume uploaded successfully</div>
+        </div>
+        <div class="resume-actions">
+          <a href="/resume/{{ user[4] }}" class="resume-view-btn" target="_blank">👁️ View</a>
+          <a href="/delete-resume" class="resume-delete-btn">🗑️ Delete</a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Upload new resume -->
+      <form method="POST" action="/upload-resume" enctype="multipart/form-data">
+        <div class="resume-drop" id="dropZone">
+          <input type="file" name="resume" class="resume-file-input" id="resumeInput" accept=".pdf,.doc,.docx" onchange="showSelected(this)" />
+          <span class="resume-drop-icon">📂</span>
+          <div class="resume-drop-title">
+            {% if user[4] %}Replace Resume{% else %}Upload Your Resume{% endif %}
+          </div>
+          <div class="resume-drop-sub">Drag & drop your file here or click to browse<br>Supported: PDF, DOC, DOCX (Max 5MB)</div>
+          <span class="resume-browse-btn">Browse File</span>
+        </div>
+        <div class="resume-selected" id="selectedFile">
+          <span>📄</span>
+          <span id="selected-name">No file selected</span>
+        </div>
+        <button type="submit" class="upload-resume-btn">🚀 Upload Resume</button>
+      </form>
+    </div>
+
+    <!-- Edit Profile -->
+    <div class="card">
+      <div class="card-title">✏️ Edit Profile</div>
       <form method="POST" action="/profile">
         <div class="form-group">
           <label>Full Name</label>
-          <input type="text" name="name" value="{{ user[1] }}" required />
+          <input type="text" name="name" value="{{ user[1] }}" placeholder="Your full name" required />
         </div>
         <div class="form-group">
-          <label>Email <span class="hint">(cannot be changed)</span></label>
-          <input type="email" value="{{ user[2] }}" disabled />
+          <label>Skills</label>
+          <textarea name="skills" placeholder="e.g. Python, Web Dev, Design, Marketing...">{{ user[5] }}</textarea>
         </div>
-        <div class="form-group">
-          <label>Your Skills <span class="hint">(comma separated)</span></label>
-          <input type="text" name="skills" value="{{ user[4] }}" placeholder="python, html, data science" required />
-        </div>
-        <button type="submit" class="btn-primary full-width">Save Changes</button>
+        <button type="submit" class="btn">Save Changes →</button>
       </form>
     </div>
   </div>
 
+  <script>
+    // Resume drag and drop
+    const dropZone = document.getElementById('dropZone');
+    const resumeInput = document.getElementById('resumeInput');
+
+    if (dropZone) {
+      dropZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      });
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+      dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files[0]) {
+          resumeInput.files = e.dataTransfer.files;
+          showSelected(resumeInput);
+        }
+      });
+    }
+
+    function showSelected(input) {
+      const file = input.files[0];
+      if (file) {
+        document.getElementById('selected-name').textContent = file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)';
+        document.getElementById('selectedFile').classList.add('show');
+      }
+    }
+
+    // Pickup lines
+    const lines = [
+      "You are one skill away from your dream internship! 💜",
+      "Are you a portfolio? Because you are impressive! 🌟",
+      "Your profile is as amazing as you are! Keep shining! ✨",
+      "Are you a LinkedIn profile? Because everyone wants to connect with you! 🔗",
+      "Skills + Passion = Your Dream Job! Keep going! 🚀",
+      "Are you a reference letter? Because you speak for yourself! 💌"
+    ];
+    let idx = 0;
+    const el = document.getElementById('pickup');
+    function show() { el.style.animation='none'; el.offsetHeight; el.style.animation='fadeIn 0.6s ease'; el.textContent='💬 ' + lines[idx]; idx=(idx+1)%lines.length; }
+    show(); setInterval(show, 3500);
+  </script>
 </body>
 </html>

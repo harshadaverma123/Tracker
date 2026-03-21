@@ -4,41 +4,147 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Register | Smart Internship Tracker</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; background: #f5f3ff; overflow: hidden; }
+    .left { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 2.5rem; position: relative; overflow: hidden; background: linear-gradient(145deg, #3b0764 0%, #6d28d9 45%, #7c3aed 75%, #a855f7 100%); }
+    .orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.35; animation: orbFloat ease-in-out infinite alternate; }
+    .orb1 { width: 300px; height: 300px; background: #c084fc; top: -80px; left: -80px; animation-duration: 10s; }
+    .orb2 { width: 250px; height: 250px; background: #818cf8; bottom: -60px; right: -60px; animation-duration: 13s; }
+    .orb3 { width: 180px; height: 180px; background: #e879f9; top: 50%; left: 30%; animation-duration: 8s; }
+    @keyframes orbFloat { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(25px,25px) scale(1.1); } }
+    canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+    .left-content { position: relative; z-index: 2; text-align: center; color: #fff; max-width: 380px; }
+    .big-icon { font-size: 62px; margin-bottom: 1.2rem; display: block; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.3)); }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    .left-content h2 { font-family: 'DM Serif Display', serif; font-size: 22px; color: #fff; margin-bottom: 1rem; white-space: nowrap; text-shadow: 0 2px 16px rgba(0,0,0,0.2); }
+    .pickup-box { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 14px 20px; margin-bottom: 1.4rem; min-height: 58px; display: flex; align-items: center; justify-content: center; position: relative; }
+    .pickup-box::before { content: '💬'; position: absolute; top: 8px; left: 12px; font-size: 14px; opacity: 0.6; }
+    .pickup-line { font-size: 13px; font-style: italic; color: #f3e8ff; text-align: center; line-height: 1.55; animation: fadeIn 0.6s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .left-content p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.75; margin-bottom: 2rem; }
+    .stats { display: flex; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; overflow: hidden; width: 100%; }
+    .stat { flex: 1; text-align: center; padding: 1rem 0.5rem; border-right: 1px solid rgba(255,255,255,0.12); transition: background 0.2s; }
+    .stat:last-child { border-right: none; }
+    .stat:hover { background: rgba(255,255,255,0.1); }
+    .stat-num { font-size: 22px; font-weight: 700; color: #e9d5ff; margin-bottom: 4px; }
+    .stat-label { font-size: 10px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 1px; }
+    .features { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 1.5rem; }
+    .feature-pill { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.8); font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 20px; }
+    .right { width: 480px; flex-shrink: 0; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2.5rem 3rem; box-shadow: -20px 0 60px rgba(109,40,217,0.08); overflow-y: auto; }
+    .right-inner { width: 100%; max-width: 380px; }
+    .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1.8rem; }
+    .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #7c3aed, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 6px 18px rgba(124,58,237,0.35); }
+    .logo-name { font-size: 14px; font-weight: 600; color: #1e1b4b; line-height: 1.3; }
+    .logo-name small { display: block; font-size: 11px; font-weight: 400; color: #94a3b8; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; background: #f5f3ff; color: #7c3aed; font-size: 11px; font-weight: 600; padding: 5px 14px; border-radius: 20px; margin-bottom: 1rem; border: 1px solid #ede9fe; letter-spacing: 0.5px; text-transform: uppercase; }
+    .badge::before { content: ''; width: 6px; height: 6px; background: #8b5cf6; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    h1 { font-size: 26px; font-weight: 700; color: #1e1b4b; letter-spacing: -0.5px; margin-bottom: 5px; }
+    .sub { font-size: 14px; color: #94a3b8; margin-bottom: 1.5rem; }
+    .alert.error { padding: 12px 16px; border-radius: 12px; font-size: 13px; margin-bottom: 1.2rem; background: #fef2f2; color: #dc2626; border: 1px solid rgba(220,38,38,0.2); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 7px; }
+    input, textarea { width: 100%; padding: 12px 16px; background: #fafafa; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: #1e1b4b; outline: none; transition: all 0.22s; }
+    textarea { resize: none; height: 70px; }
+    input::placeholder, textarea::placeholder { color: #d1d5db; }
+    input:focus, textarea:focus { border-color: #8b5cf6; background: #fff; box-shadow: 0 0 0 4px rgba(139,92,246,0.1); }
+    .btn { width: 100%; padding: 13px; background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 0.5rem; box-shadow: 0 8px 24px rgba(109,40,217,0.3); transition: all 0.25s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(109,40,217,0.45); background: linear-gradient(135deg, #7c3aed, #a855f7); }
+    .switch { text-align: center; font-size: 13px; color: #94a3b8; margin-top: 1.2rem; }
+    .switch a { color: #7c3aed; text-decoration: none; font-weight: 600; }
+    @media (max-width: 700px) { .left { display: none; } .right { width: 100%; } }
+  </style>
 </head>
-<body class="auth-page">
-
-  <div class="auth-card">
-    <div class="auth-logo">🎯</div>
-    <h1>Create Account</h1>
-    <p class="auth-sub">Start tracking your internships</p>
-
-    {% if error %}
-      <div class="alert error">{{ error }}</div>
-    {% endif %}
-
-    <form method="POST" action="/register">
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" name="name" placeholder="Your full name" required />
+<body>
+  <div class="left">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+    <canvas id="c"></canvas>
+    <div class="left-content">
+      <span class="big-icon">🚀</span>
+      <div class="pickup-box">
+        <div class="pickup-line" id="pickup"></div>
       </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" name="email" placeholder="you@email.com" required />
+      <h2>Join 10,000+ Smart Students!</h2>
+      <p>One account. Infinite opportunities. Your dream internship is just one click away! 🌟</p>
+      <div class="stats">
+        <div class="stat"><div class="stat-num">500+</div><div class="stat-label">Internships</div></div>
+        <div class="stat"><div class="stat-num">98%</div><div class="stat-label">Success</div></div>
+        <div class="stat"><div class="stat-num">10k+</div><div class="stat-label">Students</div></div>
+        <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Companies</div></div>
       </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" name="password" placeholder="••••••••" required />
+      <div class="features">
+        <div class="feature-pill">✅ Free Forever</div>
+        <div class="feature-pill">📅 Track Deadlines</div>
+        <div class="feature-pill">🎯 Get Hired</div>
       </div>
-      <div class="form-group">
-        <label>Your Skills <span class="hint">(comma separated, e.g: python, web, data)</span></label>
-        <input type="text" name="skills" placeholder="python, html, data science" required />
-      </div>
-      <button type="submit" class="btn-primary full-width">Create Account</button>
-    </form>
-
-    <p class="auth-switch">Already have an account? <a href="/login">Login here</a></p>
+    </div>
   </div>
-
+  <div class="right">
+    <div class="right-inner">
+      <div class="logo-row">
+        <div class="logo-icon">🎯</div>
+        <div class="logo-name">Smart Internship Tracker <small>Your career companion</small></div>
+      </div>
+      <div class="badge">Create account</div>
+      <h1>Join us today! 🎉</h1>
+      <p class="sub">Fill in your details and start your journey</p>
+      {% if error %}<div class="alert error">⚠ {{ error }}</div>{% endif %}
+      <form method="POST" action="/register">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="name" placeholder="Your name" required />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="you@email.com" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="Create a strong password" required />
+        </div>
+        <div class="form-group">
+          <label>Your Skills</label>
+          <textarea name="skills" placeholder="e.g. Python, Web Dev, Design, Marketing..."></textarea>
+        </div>
+        <button type="submit" class="btn">Create Account →</button>
+      </form>
+      <p class="switch">Already have an account? <a href="/login">Login here</a></p>
+    </div>
+  </div>
+  <script>
+    const lines = [
+      "Are you a startup? Because I want to invest all my time in you! 💜",
+      "Is your name Opportunity? Because I've been knocking! 🚪",
+      "Do you believe in love at first signup? Because here we are! 💌",
+      "Are you a skill? Because I want to add you to my resume! 📄",
+      "Is this heaven? No, it's just your career dashboard! ☁️",
+      "Are you a mentor? Because you just changed my life! 🌟",
+      "Do you have a map? I keep getting lost in your opportunities! 🗺️",
+      "Are you a certification? Because you complete me! 🏆"
+    ];
+    let idx = 0;
+    const el = document.getElementById('pickup');
+    function show() { el.style.animation='none'; el.offsetHeight; el.style.animation='fadeIn 0.6s ease'; el.textContent=lines[idx]; idx=(idx+1)%lines.length; }
+    show(); setInterval(show, 3500);
+    const c = document.getElementById('c'), ctx = c.getContext('2d');
+    function resize() { c.width = c.parentElement.offsetWidth; c.height = c.parentElement.offsetHeight; }
+    resize(); window.addEventListener('resize', resize);
+    const pts = Array.from({length:50}, () => ({ x:Math.random()*c.width, y:Math.random()*c.height, dx:(Math.random()-.5)*.4, dy:(Math.random()-.5)*.4, r:1+Math.random()*2, alpha:.3+Math.random()*.5 }));
+    let t=0;
+    function frame() {
+      ctx.clearRect(0,0,c.width,c.height);
+      for(let w=0;w<3;w++) { ctx.beginPath(); ctx.moveTo(0,c.height*.75); for(let x=0;x<=c.width;x+=4){const y=c.height*.72+Math.sin((x*.006)+(t*.018)+(w*1.2))*30+Math.sin((x*.012)+(t*.012))*15; ctx.lineTo(x,y);} ctx.lineTo(c.width,c.height); ctx.lineTo(0,c.height); ctx.closePath(); ctx.fillStyle=`rgba(255,255,255,${.04+w*.025})`; ctx.fill(); }
+      pts.forEach((p,i) => { pts.slice(i+1).forEach(q=>{const d=Math.hypot(p.x-q.x,p.y-q.y); if(d<100){ctx.beginPath();ctx.strokeStyle=`rgba(255,255,255,${.1*(1-d/100)})`;ctx.lineWidth=.5;ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}}); ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${p.alpha})`;ctx.fill(); p.x+=p.dx;p.y+=p.dy; if(p.x<0||p.x>c.width)p.dx*=-1; if(p.y<0||p.y>c.height)p.dy*=-1; });
+      t++; requestAnimationFrame(frame);
+    }
+    frame();
+  </script>
 </body>
 </html>
