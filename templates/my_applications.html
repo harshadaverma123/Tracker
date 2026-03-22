@@ -154,10 +154,11 @@
       <span class="nav-title">Smart Internship Tracker</span>
     </div>
     <div class="nav-links">
-      <a href="/dashboard" class="nav-link">🏠 Dashboard</a>
-      <a href="/my-applications" class="nav-link active">📋 My Applications</a>
-      <a href="/profile" class="nav-link">👤 Profile</a>
-      <a href="/logout" class="nav-logout">Logout →</a>
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/analytics" class="nav-link">Analytics</a>
+      <a href="/my-applications" class="nav-link active">My Applications</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/logout" class="nav-logout">Logout</a>
     </div>
   </nav>
 
@@ -181,7 +182,7 @@
 
     <!-- Progress Journey Bar -->
     <div class="progress-section">
-      <div class="progress-heading">🗺️ Your Application Journey</div>
+      <div class="progress-heading">Application Journey</div>
       <div class="progress-steps" id="progress-steps">
         <div class="step done" id="step-applied">
           <div class="step-circle">📝</div>
@@ -205,7 +206,7 @@
       </div>
     </div>
 
-    <div class="section-title">📋 Your Applications</div>
+    <div class="section-title">Your Applications</div>
 
     {% if applications %}
     <div class="apps-list">
@@ -243,6 +244,10 @@
             {% else %}📋 Applied{% endif %}
           </span>
           <!-- Update form -->
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <a href="/timeline/{{ app[0] }}" style="background:#f5f3ff;color:#6d28d9;border:1px solid #ede9fe;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;text-decoration:none;">Timeline</a>
+            <a href="/checklist/{{ app[0] }}" style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;text-decoration:none;">Checklist</a>
+          </div>
           <form method="POST" action="/update-status/{{ app[0] }}" class="update-form">
             <select name="status">
               <option {% if app[4] == 'Applied' %}selected{% endif %}>Applied</option>
@@ -270,16 +275,16 @@
   <script>
     /* ── PICKUP LINES ── */
     const lines = [
-      "Every application is one step closer to your dream! 💜",
-      "Are you a job offer? Because I've been waiting for you! 📩",
-      "Don't stop applying — your yes is coming! 🌟",
-      "Keep going — success is just one application away! 🚀",
-      "Are you an offer letter? Because you'd make my day! 💌",
-      "Your dream internship is searching for you too! 🎯"
+      "Tip: Update your application status regularly to track your progress.",
+      "Tip: Follow up with companies 1-2 weeks after applying.",
+      "Tip: Prepare well for interviews — research the company beforehand.",
+      "Tip: Keep track of all deadlines to avoid missing opportunities.",
+      "Tip: A positive attitude and persistence leads to success.",
+      "Tip: Note down key details for each company you have applied to."
     ];
     let idx = 0;
     const el = document.getElementById('pickup');
-    function showLine() { el.style.animation='none'; el.offsetHeight; el.style.animation='fadeIn 0.6s ease'; el.textContent='💬 '+lines[idx]; idx=(idx+1)%lines.length; }
+    function showLine() { el.style.animation='none'; el.offsetHeight; el.style.animation='fadeIn 0.6s ease'; el.textContent='💡 '+lines[idx]; idx=(idx+1)%lines.length; }
     showLine(); setInterval(showLine, 3500);
 
     /* ── COUNTDOWN BADGES ── */

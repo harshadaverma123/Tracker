@@ -1,0 +1,135 @@
+<!-- THIS FILE CONTAINS: calendar.html content -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deadline Calendar | Smart Internship Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;min-height:100vh;background:#f5f3ff;}
+    .navbar{background:linear-gradient(135deg,#3b0764,#7c3aed);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:0 4px 24px rgba(109,40,217,0.3);position:sticky;top:0;z-index:100;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .nav-icon{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .nav-title{font-size:16px;font-weight:700;color:#fff;}
+    .nav-links{display:flex;align-items:center;gap:6px;}
+    .nav-link{color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;text-decoration:none;padding:7px 14px;border-radius:10px;transition:all 0.2s;}
+    .nav-link:hover,.nav-link.active{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-logout{background:rgba(255,255,255,0.12);color:#fff;font-size:13px;font-weight:600;padding:7px 18px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.2);}
+    .main{max-width:1000px;margin:0 auto;padding:2.5rem 2rem;}
+    .page-header{background:linear-gradient(135deg,#3b0764,#6d28d9,#7c3aed);border-radius:24px;padding:2rem 2.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;}
+    .page-header::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(255,255,255,0.06);border-radius:50%;}
+    .page-header h1{font-family:'DM Serif Display',serif;font-size:26px;color:#fff;margin-bottom:6px;}
+    .page-header p{font-size:14px;color:rgba(255,255,255,0.55);}
+    .header-emoji{font-size:56px;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.3));}
+    .legend{display:flex;gap:20px;margin-bottom:1.5rem;flex-wrap:wrap;}
+    .legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:#374151;}
+    .legend-dot{width:12px;height:12px;border-radius:50%;}
+    .deadline-list{display:flex;flex-direction:column;gap:12px;}
+    .deadline-card{background:#fff;border-radius:16px;padding:1.2rem 1.5rem;border:1px solid #ede9fe;box-shadow:0 2px 12px rgba(109,40,217,0.06);display:flex;align-items:center;gap:16px;transition:all 0.2s;position:relative;overflow:hidden;}
+    .deadline-card:hover{transform:translateX(4px);}
+    .deadline-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
+    .deadline-card.urgent::before{background:#dc2626;}
+    .deadline-card.soon::before{background:#d97706;}
+    .deadline-card.ok::before{background:#16a34a;}
+    .deadline-card.applied::before{background:#6d28d9;}
+    .deadline-date{width:70px;height:70px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;}
+    .deadline-date.urgent{background:#fef2f2;color:#dc2626;}
+    .deadline-date.soon{background:#fffbeb;color:#d97706;}
+    .deadline-date.ok{background:#f0fdf4;color:#16a34a;}
+    .deadline-date.applied{background:#f5f3ff;color:#6d28d9;}
+    .date-day{font-size:22px;font-weight:700;line-height:1;}
+    .date-month{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+    .deadline-info{flex:1;}
+    .deadline-title{font-size:15px;font-weight:700;color:#1e1b4b;margin-bottom:3px;}
+    .deadline-company{font-size:13px;color:#7c3aed;font-weight:600;margin-bottom:5px;}
+    .days-badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 12px;border-radius:20px;}
+    .days-badge.urgent{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+    .days-badge.soon{background:#fffbeb;color:#d97706;border:1px solid #fde68a;}
+    .days-badge.ok{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+    .days-badge.applied{background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;}
+    .stipend-tag{font-size:13px;font-weight:600;color:#6d28d9;}
+    .apply-link{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;font-size:12px;font-weight:600;padding:8px 16px;border-radius:10px;text-decoration:none;flex-shrink:0;transition:all 0.2s;box-shadow:0 3px 10px rgba(109,40,217,0.3);}
+    .apply-link:hover{transform:translateY(-1px);}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">
+      <div class="nav-icon">🎯</div>
+      <span class="nav-title">Smart Internship Tracker</span>
+    </div>
+    <div class="nav-links">
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/analytics" class="nav-link">Analytics</a>
+      <a href="/calendar" class="nav-link active">Calendar</a>
+      <a href="/my-applications" class="nav-link">Applications</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/logout" class="nav-logout">Logout</a>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="page-header">
+      <div>
+        <h1>Deadline Calendar</h1>
+        <p>All internship deadlines sorted by urgency</p>
+      </div>
+      <div class="header-emoji">📅</div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Urgent — Less than 3 days</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Soon — Less than 7 days</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div>Plenty of time</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#6d28d9"></div>Already applied</div>
+    </div>
+    <div class="deadline-list">
+      {% for i in internships %}
+      {% set deadline = i[6] %}
+      {% set is_applied = i[0]|string in applied_ids %}
+      <div class="deadline-card {% if is_applied %}applied{% endif %}" id="dl-{{ i[0] }}">
+        <div class="deadline-date {% if is_applied %}applied{% endif %}" id="date-{{ i[0] }}">
+          <div class="date-day">{{ i[6].strftime('%d') if i[6] else '--' }}</div>
+          <div class="date-month">{{ i[6].strftime('%b') if i[6] else '---' }}</div>
+        </div>
+        <div class="deadline-info">
+          <div class="deadline-title">{{ i[1] }}</div>
+          <div class="deadline-company">{{ i[2] }}</div>
+          <span class="days-badge" id="badge-{{ i[0] }}" data-deadline="{{ i[6] }}" data-applied="{{ is_applied }}">Calculating...</span>
+          <span class="stipend-tag" style="margin-left:8px;">{{ i[5] }}</span>
+        </div>
+        <a href="{{ i[7] }}" class="apply-link" target="_blank">{% if is_applied %}Applied{% else %}Apply Now{% endif %}</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll('.days-badge').forEach(badge => {
+      const deadline = new Date(badge.dataset.deadline);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const diff = Math.ceil((deadline - today) / (1000*60*60*24));
+      const isApplied = badge.dataset.applied === 'True';
+      const card = badge.closest('.deadline-card');
+      const dateBox = card.querySelector('.deadline-date');
+      if (isApplied) {
+        badge.textContent = 'Applied'; badge.className = 'days-badge applied';
+      } else if (diff < 0) {
+        badge.textContent = 'Deadline passed'; badge.className = 'days-badge urgent';
+        card.classList.add('urgent'); dateBox.classList.replace('applied','urgent');
+      } else if (diff === 0) {
+        badge.textContent = 'Due today!'; badge.className = 'days-badge urgent';
+        card.classList.add('urgent'); dateBox.classList.replace('applied','urgent');
+      } else if (diff <= 3) {
+        badge.textContent = diff + ' day' + (diff>1?'s':'') + ' left'; badge.className = 'days-badge urgent';
+        card.classList.add('urgent'); dateBox.classList.replace('applied','urgent');
+      } else if (diff <= 7) {
+        badge.textContent = diff + ' days left'; badge.className = 'days-badge soon';
+        card.classList.add('soon'); dateBox.classList.replace('applied','soon');
+      } else {
+        badge.textContent = diff + ' days left'; badge.className = 'days-badge ok';
+        card.classList.add('ok'); dateBox.classList.replace('applied','ok');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Application Timeline | Smart Internship Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;min-height:100vh;background:#f5f3ff;}
+    .navbar{background:linear-gradient(135deg,#3b0764,#7c3aed);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:0 4px 24px rgba(109,40,217,0.3);position:sticky;top:0;z-index:100;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .nav-icon{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .nav-title{font-size:16px;font-weight:700;color:#fff;}
+    .nav-links{display:flex;align-items:center;gap:6px;}
+    .nav-link{color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;text-decoration:none;padding:7px 14px;border-radius:10px;transition:all 0.2s;}
+    .nav-link:hover,.nav-link.active{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-logout{background:rgba(255,255,255,0.12);color:#fff;font-size:13px;font-weight:600;padding:7px 18px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.2);}
+    .main{max-width:700px;margin:0 auto;padding:2.5rem 2rem;}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;color:#7c3aed;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:1.5rem;}
+    .card{background:#fff;border-radius:24px;padding:2rem;border:1px solid #ede9fe;box-shadow:0 2px 16px rgba(109,40,217,0.07);}
+    .intern-name{font-family:'DM Serif Display',serif;font-size:22px;color:#1e1b4b;margin-bottom:4px;}
+    .intern-company{font-size:14px;color:#7c3aed;font-weight:600;margin-bottom:2rem;}
+    .timeline{position:relative;padding-left:40px;}
+    .timeline::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#6d28d9,#a855f7);}
+    .tl-item{position:relative;margin-bottom:2rem;}
+    .tl-dot{position:absolute;left:-32px;top:4px;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #6d28d9;}
+    .tl-dot.applied{background:#6d28d9;}
+    .tl-dot.interview{background:#d97706;}
+    .tl-dot.offered{background:#16a34a;}
+    .tl-dot.rejected{background:#dc2626;}
+    .tl-status{font-size:14px;font-weight:700;color:#1e1b4b;margin-bottom:3px;}
+    .tl-date{font-size:12px;color:#94a3b8;}
+    .empty-state{text-align:center;padding:3rem;color:#94a3b8;}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo"><div class="nav-icon">🎯</div><span class="nav-title">Smart Internship Tracker</span></div>
+    <div class="nav-links">
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/my-applications" class="nav-link">Applications</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/logout" class="nav-logout">Logout</a>
+    </div>
+  </nav>
+  <div class="main">
+    <a href="/my-applications" class="back-btn">← Back to Applications</a>
+    <div class="card">
+      {% if history %}
+      <div class="intern-name">{{ history[0][2] }}</div>
+      <div class="intern-company">{{ history[0][3] }}</div>
+      <div class="timeline">
+        {% for h in history %}
+        <div class="tl-item">
+          <div class="tl-dot {{ h[0]|lower }}"></div>
+          <div class="tl-status">{{ h[0] }}</div>
+          <div class="tl-date">{{ h[1].strftime('%d %B %Y at %I:%M %p') if h[1] else '' }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div style="font-size:48px;margin-bottom:1rem;">📜</div>
+        <p>No timeline history yet. Update your application status to start tracking!</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

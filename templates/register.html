@@ -93,7 +93,7 @@
       <div class="badge">Create account</div>
       <h1>Join us today! 🎉</h1>
       <p class="sub">Fill in your details and start your journey</p>
-      {% if error %}<div class="alert error">⚠ {{ error }}</div>{% endif %}
+      {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
       <form method="POST" action="/register">
         <div class="form-row">
           <div class="form-group">

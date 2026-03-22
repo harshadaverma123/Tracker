@@ -118,10 +118,10 @@
       <span class="nav-title">Smart Internship Tracker</span>
     </div>
     <div class="nav-links">
-      <a href="/dashboard" class="nav-link">🏠 Dashboard</a>
-      <a href="/my-applications" class="nav-link">📋 My Applications</a>
-      <a href="/profile" class="nav-link active">👤 Profile</a>
-      <a href="/logout" class="nav-logout">Logout →</a>
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/my-applications" class="nav-link">My Applications</a>
+      <a href="/profile" class="nav-link active">Profile</a>
+      <a href="/logout" class="nav-logout">Logout</a>
     </div>
   </nav>
 
@@ -143,7 +143,7 @@
 
     <!-- Profile Info -->
     <div class="card">
-      <div class="card-title">👤 Profile Information</div>
+      <div class="card-title">Profile Information</div>
       <div class="info-row">
         <div class="info-icon">✉️</div>
         <div><div class="info-label">Email</div><div class="info-value">{{ user[2] }}</div></div>
@@ -184,7 +184,7 @@
 
     <!-- Resume Upload Card -->
     <div class="card">
-      <div class="card-title">📄 My Resume</div>
+      <div class="card-title">Resume</div>
 
       {% if user[4] %}
       <!-- Resume already uploaded -->
@@ -222,7 +222,7 @@
 
     <!-- Edit Profile -->
     <div class="card">
-      <div class="card-title">✏️ Edit Profile</div>
+      <div class="card-title">Edit Profile</div>
       <form method="POST" action="/profile">
         <div class="form-group">
           <label>Full Name</label>

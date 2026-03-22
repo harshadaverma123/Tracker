@@ -416,7 +416,7 @@
       <p class="sub">Enter your details to continue your journey</p>
 
       {% if error %}
-        <div class="alert error">⚠ {{ error }}</div>
+        <div class="alert error">{{ error }}</div>
       {% endif %}
 
       <form method="POST" action="/login">

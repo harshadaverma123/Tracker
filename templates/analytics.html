@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Analytics | Smart Internship Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; min-height: 100vh; background: #f5f3ff; }
+
+    /* NAVBAR */
+    .navbar { background: linear-gradient(135deg, #3b0764, #7c3aed); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; box-shadow: 0 4px 24px rgba(109,40,217,0.3); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .nav-title { font-size: 16px; font-weight: 700; color: #fff; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+    .nav-link { color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 500; text-decoration: none; padding: 7px 14px; border-radius: 10px; transition: all 0.2s; }
+    .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-logout { background: rgba(255,255,255,0.12); color: #fff; font-size: 13px; font-weight: 600; padding: 7px 18px; border-radius: 10px; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); }
+
+    .main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+
+    /* PAGE HEADER */
+    .page-header { background: linear-gradient(135deg, #3b0764, #6d28d9, #7c3aed); border-radius: 24px; padding: 2.2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; }
+    .page-header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 220px; height: 220px; background: rgba(255,255,255,0.06); border-radius: 50%; }
+    .page-header::after { content: ''; position: absolute; bottom: -40px; left: 30%; width: 160px; height: 160px; background: rgba(255,255,255,0.04); border-radius: 50%; }
+    .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 28px; color: #fff; margin-bottom: 6px; position: relative; z-index: 1; }
+    .page-header p { font-size: 14px; color: rgba(255,255,255,0.6); position: relative; z-index: 1; }
+    .header-emoji { font-size: 60px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3)); animation: float 4s ease-in-out infinite; position: relative; z-index: 1; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    /* STAT CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 2rem; }
+    .stat-card { background: #fff; border-radius: 20px; padding: 1.5rem; border: 1px solid #ede9fe; box-shadow: 0 2px 16px rgba(109,40,217,0.07); text-align: center; transition: transform 0.2s; position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .stat-card:nth-child(1)::before { background: linear-gradient(90deg, #6d28d9, #a855f7); }
+    .stat-card:nth-child(2)::before { background: linear-gradient(90deg, #16a34a, #22c55e); }
+    .stat-card:nth-child(3)::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
+    .stat-card:nth-child(4)::before { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(109,40,217,0.12); }
+    .stat-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+    .stat-val { font-size: 36px; font-weight: 700; color: #1e1b4b; margin-bottom: 4px; }
+    .stat-lbl { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* CHART CARDS */
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .chart-card { background: #fff; border-radius: 24px; padding: 1.8rem; border: 1px solid #ede9fe; box-shadow: 0 2px 16px rgba(109,40,217,0.07); }
+    .chart-card-full { background: #fff; border-radius: 24px; padding: 1.8rem; border: 1px solid #ede9fe; box-shadow: 0 2px 16px rgba(109,40,217,0.07); margin-bottom: 20px; }
+    .chart-card-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: #1e1b4b; margin-bottom: 4px; }
+    .chart-card-sub { font-size: 13px; color: #94a3b8; margin-bottom: 1.5rem; }
+    .chart-wrap { position: relative; height: 260px; }
+    .chart-wrap-sm { position: relative; height: 220px; }
+
+    /* EMPTY STATE */
+    .empty-chart { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; color: #94a3b8; font-size: 14px; gap: 10px; }
+    .empty-chart-icon { font-size: 40px; opacity: 0.4; }
+
+    /* INSIGHT CARDS */
+    .insights-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+    .insight-card { background: #fff; border-radius: 16px; padding: 1.2rem 1.5rem; border: 1px solid #ede9fe; box-shadow: 0 2px 12px rgba(109,40,217,0.06); display: flex; align-items: center; gap: 14px; }
+    .insight-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .insight-title { font-size: 12px; color: #94a3b8; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .insight-val { font-size: 16px; font-weight: 700; color: #1e1b4b; }
+
+    @media (max-width: 700px) { .stats-grid { grid-template-columns: repeat(2,1fr); } .charts-grid { grid-template-columns: 1fr; } .insights-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">
+      <div class="nav-icon">🎯</div>
+      <span class="nav-title">Smart Internship Tracker</span>
+    </div>
+    <div class="nav-links">
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/analytics" class="nav-link active">Analytics</a>
+      <a href="/bookmarks" class="nav-link">Saved</a>
+      <a href="/compare" class="nav-link">Compare</a>
+      <a href="/my-applications" class="nav-link">Applications</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/logout" class="nav-logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="main">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h1>Analytics Dashboard</h1>
+        <p>Insights into your internship journey and application performance</p>
+      </div>
+      <div class="header-emoji">📊</div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon">📋</span>
+        <div class="stat-val">{{ total_apps }}</div>
+        <div class="stat-lbl">Total Applications</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🏆</span>
+        <div class="stat-val">{{ total_offered }}</div>
+        <div class="stat-lbl">Offers Received</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🔖</span>
+        <div class="stat-val">{{ total_bookmarks }}</div>
+        <div class="stat-lbl">Saved Internships</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🎯</span>
+        <div class="stat-val">{{ total_internships }}</div>
+        <div class="stat-lbl">Available Internships</div>
+      </div>
+    </div>
+
+    <!-- Key Insights -->
+    <div class="insights-grid">
+      <div class="insight-card">
+        <div class="insight-icon" style="background:#f5f3ff;">📈</div>
+        <div>
+          <div class="insight-title">Success Rate</div>
+          <div class="insight-val">
+            {% if total_apps > 0 %}{{ ((total_offered / total_apps) * 100)|round|int }}%{% else %}0%{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon" style="background:#f0fdf4;">🏢</div>
+        <div>
+          <div class="insight-title">Top Field Applied</div>
+          <div class="insight-val">{{ field_data[0][0].title() if field_data else 'None yet' }}</div>
+        </div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-icon" style="background:#fffbeb;">🏅</div>
+        <div>
+          <div class="insight-title">Top Company</div>
+          <div class="insight-val">{{ company_data[0][0] if company_data else 'None yet' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 1: Pie Chart + Bar Chart -->
+    <div class="charts-grid">
+      <!-- Application Status Pie -->
+      <div class="chart-card">
+        <div class="chart-card-title">Application Status Breakdown</div>
+        <div class="chart-card-sub">Distribution of your application statuses</div>
+        {% if status_data %}
+        <div class="chart-wrap-sm"><canvas id="statusChart"></canvas></div>
+        {% else %}
+        <div class="empty-chart"><div class="empty-chart-icon">📋</div>No applications yet</div>
+        {% endif %}
+      </div>
+
+      <!-- Most Applied Fields Bar -->
+      <div class="chart-card">
+        <div class="chart-card-title">Most Applied Fields</div>
+        <div class="chart-card-sub">Which internship fields you applied to most</div>
+        {% if field_data %}
+        <div class="chart-wrap-sm"><canvas id="fieldChart"></canvas></div>
+        {% else %}
+        <div class="empty-chart"><div class="empty-chart-icon">📚</div>No applications yet</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Monthly Trends Line Chart -->
+    <div class="chart-card-full">
+      <div class="chart-card-title">Monthly Application Trends</div>
+      <div class="chart-card-sub">Number of internships you applied to each month</div>
+      {% if monthly_data %}
+      <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+      {% else %}
+      <div class="empty-chart"><div class="empty-chart-icon">📅</div>No application history yet — start applying to see trends!</div>
+      {% endif %}
+    </div>
+
+    <!-- Top Companies Bar Chart -->
+    <div class="chart-card-full">
+      <div class="chart-card-title">Top Companies by Applications</div>
+      <div class="chart-card-sub">Companies with the most student applications</div>
+      {% if company_data %}
+      <div class="chart-wrap"><canvas id="companyChart"></canvas></div>
+      {% else %}
+      <div class="empty-chart"><div class="empty-chart-icon">🏢</div>No applications yet</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    Chart.defaults.font.family = "'DM Sans', sans-serif";
+    Chart.defaults.color = '#64748b';
+
+    // ── STATUS PIE CHART ──
+    {% if status_data %}
+    new Chart(document.getElementById('statusChart'), {
+      type: 'doughnut',
+      data: {
+        labels: [{% for s in status_data %}'{{ s[0] }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+          data: [{% for s in status_data %}{{ s[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+          backgroundColor: ['#6d28d9','#d97706','#16a34a','#dc2626','#2563eb'],
+          borderWidth: 3,
+          borderColor: '#fff',
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        cutout: '65%',
+        plugins: {
+          legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } }
+        },
+        animation: { animateRotate: true, duration: 1200 }
+      }
+    });
+    {% endif %}
+
+    // ── FIELD BAR CHART ──
+    {% if field_data %}
+    new Chart(document.getElementById('fieldChart'), {
+      type: 'bar',
+      data: {
+        labels: [{% for f in field_data %}'{{ f[0].title() }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+          label: 'Applications',
+          data: [{% for f in field_data %}{{ f[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+          backgroundColor: ['#6d28d9','#8b5cf6','#a855f7','#c084fc','#d8b4fe','#ede9fe'],
+          borderRadius: 8,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: '#f1f5f9' }, ticks: { stepSize: 1 } },
+          y: { grid: { display: false } }
+        },
+        animation: { duration: 1000 }
+      }
+    });
+    {% endif %}
+
+    // ── MONTHLY LINE CHART ──
+    {% if monthly_data %}
+    new Chart(document.getElementById('monthlyChart'), {
+      type: 'line',
+      data: {
+        labels: [{% for m in monthly_data %}'{{ m[0] }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+          label: 'Applications',
+          data: [{% for m in monthly_data %}{{ m[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+          borderColor: '#6d28d9',
+          backgroundColor: 'rgba(109,40,217,0.08)',
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#6d28d9',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { stepSize: 1 } },
+          x: { grid: { display: false } }
+        },
+        animation: { duration: 1200 }
+      }
+    });
+    {% endif %}
+
+    // ── COMPANY BAR CHART ──
+    {% if company_data %}
+    new Chart(document.getElementById('companyChart'), {
+      type: 'bar',
+      data: {
+        labels: [{% for c in company_data %}'{{ c[0] }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+          label: 'Applications',
+          data: [{% for c in company_data %}{{ c[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+          backgroundColor: [
+            'rgba(109,40,217,0.8)',
+            'rgba(139,92,246,0.8)',
+            'rgba(168,85,247,0.8)',
+            'rgba(192,132,252,0.8)',
+            'rgba(216,180,254,0.8)',
+            'rgba(233,213,255,0.8)',
+          ],
+          borderRadius: 10,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { stepSize: 1 } },
+          x: { grid: { display: false } }
+        },
+        animation: { duration: 1000 }
+      }
+    });
+    {% endif %}
+  </script>
+</body>
+</html>

@@ -1,49 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{{ internship[1] }} | Smart Internship Tracker</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>Internship Detail | Smart Internship Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;min-height:100vh;background:#f5f3ff;}
+    .navbar{background:linear-gradient(135deg,#3b0764,#7c3aed);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:0 4px 24px rgba(109,40,217,0.3);position:sticky;top:0;z-index:100;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .nav-icon{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .nav-title{font-size:16px;font-weight:700;color:#fff;}
+    .nav-links{display:flex;align-items:center;gap:6px;}
+    .nav-link{color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;text-decoration:none;padding:7px 14px;border-radius:10px;transition:all 0.2s;}
+    .nav-link:hover,.nav-link.active{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-logout{background:rgba(255,255,255,0.12);color:#fff;font-size:13px;font-weight:600;padding:7px 18px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.2);}
+    .main{max-width:900px;margin:0 auto;padding:2.5rem 2rem;}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;color:#7c3aed;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:1.5rem;transition:gap 0.2s;}
+    .back-btn:hover{gap:10px;}
+    .card{background:#fff;border-radius:24px;padding:2rem;border:1px solid #ede9fe;box-shadow:0 2px 16px rgba(109,40,217,0.07);margin-bottom:1.5rem;}
+    .intern-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
+    .intern-company{font-size:12px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+    .intern-title{font-family:'DM Serif Display',serif;font-size:28px;color:#1e1b4b;margin-bottom:10px;}
+    .field-badge{display:inline-block;background:#f5f3ff;color:#6d28d9;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;border:1px solid #ede9fe;}
+    .intern-meta{display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+    .stipend-big{font-size:24px;font-weight:700;color:#6d28d9;}
+    .deadline-badge{background:#fef2f2;color:#dc2626;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;border:1px solid #fecaca;}
+    .stars{display:flex;gap:2px;font-size:18px;margin-bottom:4px;}
+    .rating-val{font-size:13px;color:#94a3b8;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem;}
+    .info-item{background:#fafafa;border-radius:12px;padding:1rem;border:1px solid #f1f5f9;}
+    .info-label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+    .info-val{font-size:14px;font-weight:600;color:#1e1b4b;}
+    .desc-text{font-size:14px;color:#64748b;line-height:1.8;}
+    .apply-btn{display:inline-block;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;font-size:15px;font-weight:600;padding:14px 36px;border-radius:14px;text-decoration:none;box-shadow:0 6px 20px rgba(109,40,217,0.3);transition:all 0.2s;}
+    .apply-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(109,40,217,0.45);}
+    .section-title{font-family:'DM Serif Display',serif;font-size:20px;color:#1e1b4b;margin-bottom:1.2rem;}
+    /* Share */
+    .share-form{display:flex;flex-direction:column;gap:12px;}
+    select,textarea,input[type=text]{width:100%;padding:12px 16px;background:#fafafa;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;font-family:'DM Sans',sans-serif;color:#1e1b4b;outline:none;transition:all 0.2s;}
+    select:focus,textarea:focus{border-color:#8b5cf6;box-shadow:0 0 0 4px rgba(139,92,246,0.1);}
+    textarea{resize:none;height:80px;}
+    .submit-btn{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;border:none;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 14px rgba(109,40,217,0.3);transition:all 0.2s;width:100%;}
+    .submit-btn:hover{transform:translateY(-1px);}
+    /* Reviews */
+    .review-card{background:#fafafa;border-radius:14px;padding:1rem 1.2rem;border:1px solid #f1f5f9;margin-bottom:10px;}
+    .review-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+    .reviewer-name{font-size:13px;font-weight:600;color:#1e1b4b;}
+    .review-stars{font-size:14px;}
+    .review-date{font-size:11px;color:#94a3b8;}
+    .review-text{font-size:13px;color:#64748b;line-height:1.6;}
+    .star-input{display:flex;gap:6px;flex-direction:row-reverse;justify-content:flex-end;}
+    .star-input input{display:none;}
+    .star-input label{font-size:28px;cursor:pointer;color:#d1d5db;transition:color 0.1s;}
+    .star-input input:checked~label,.star-input label:hover,.star-input label:hover~label{color:#f59e0b;}
+    @media(max-width:600px){.info-grid{grid-template-columns:1fr;}.intern-header{flex-direction:column;}}
+  </style>
 </head>
 <body>
-
   <nav class="navbar">
-    <div class="nav-logo">🎯 InternTracker</div>
+    <div class="nav-logo">
+      <div class="nav-icon">🎯</div>
+      <span class="nav-title">Smart Internship Tracker</span>
+    </div>
     <div class="nav-links">
-      <a href="/dashboard">Home</a>
-      <a href="/my-applications">My Applications</a>
-      <a href="/profile">Profile</a>
-      <a href="/logout" class="btn-logout">Logout</a>
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/analytics" class="nav-link">Analytics</a>
+      <a href="/my-applications" class="nav-link">Applications</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/logout" class="nav-logout">Logout</a>
     </div>
   </nav>
 
-  <div class="container">
-    <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+  <div class="main">
+    <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
 
-    <div class="detail-card">
-      <h1>{{ internship[1] }}</h1>
-      <p class="company-big">🏢 {{ internship[2] }}</p>
-
-      <div class="detail-meta">
-        <span class="meta-item">📁 {{ internship[4] }}</span>
-        <span class="meta-item">💰 {{ internship[5] }}</span>
-        <span class="meta-item deadline" data-date="{{ internship[6] }}">📅 Deadline: {{ internship[6] }}</span>
+    <!-- Main Card -->
+    <div class="card">
+      <div class="intern-header">
+        <div>
+          <div class="intern-company">{{ internship[2] }}</div>
+          <div class="intern-title">{{ internship[1] }}</div>
+          <span class="field-badge">{{ internship[4] }}</span>
+        </div>
+        <div class="intern-meta">
+          <div class="stipend-big">{{ internship[5] }}</div>
+          <div class="deadline-badge">Deadline: {{ internship[6] }}</div>
+          {% if avg_rating > 0 %}
+          <div>
+            <div class="stars">
+              {% for i in range(1,6) %}{% if i <= avg_rating %}⭐{% else %}☆{% endif %}{% endfor %}
+            </div>
+            <div class="rating-val">{{ avg_rating }}/5 ({{ reviews|length }} reviews)</div>
+          </div>
+          {% endif %}
+        </div>
       </div>
 
-      <div class="detail-desc">
-        <h3>About this Internship</h3>
-        <p>{{ internship[3] }}</p>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Company</div>
+          <div class="info-val">{{ internship[2] }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Field</div>
+          <div class="info-val">{{ internship[4] }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Stipend</div>
+          <div class="info-val">{{ internship[5] }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Application Deadline</div>
+          <div class="info-val">{{ internship[6] }}</div>
+        </div>
       </div>
 
-      <div class="detail-actions">
-        <a href="{{ internship[7] }}" target="_blank" class="btn-primary">🔗 Go to Application Page</a>
-        <a href="/apply/{{ internship[0] }}" class="btn-success">✅ I Have Applied</a>
-      </div>
-      <p class="apply-note">Click "I Have Applied" after submitting your application on the company's page. We'll track it for you!</p>
+      <div class="desc-text" style="margin-bottom:1.5rem;">{{ internship[3] }}</div>
+      <a href="{{ internship[7] }}" class="apply-btn" target="_blank">Apply Now →</a>
     </div>
-  </div>
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <!-- Share Internship -->
+    <div class="card">
+      <div class="section-title">Share with a Friend</div>
+      <div id="shareSuccessMsg" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:12px 16px;font-size:13px;color:#16a34a;font-weight:600;margin-bottom:1rem;">
+        Internship shared successfully! Your friend will get a notification.
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:7px;">Search Friend by Name</label>
+        <input type="text" id="detailShareSearch" placeholder="Type friend's name..." oninput="filterDetailUsers(this.value)"
+          style="width:100%;padding:12px 16px;background:#fafafa;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;font-family:'DM Sans',sans-serif;color:#1e1b4b;outline:none;transition:all 0.2s;margin-bottom:8px;">
+      </div>
+      <div id="detailUserList" style="border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:1rem;max-height:200px;overflow-y:auto;"></div>
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:7px;">Message (optional)</label>
+        <textarea id="detailShareMsg" placeholder="Hey! I found this internship that might interest you..."
+          style="width:100%;padding:12px 14px;background:#fafafa;border:1.5px solid #e5e7eb;border-radius:12px;font-size:13px;font-family:'DM Sans',sans-serif;color:#1e1b4b;outline:none;resize:none;height:80px;">Hey! I found this internship that might interest you!</textarea>
+      </div>
+      <button onclick="sendDetailShare()" class="submit-btn">Share Internship</button>
+    </div>
+
+    <!-- Rate and Review -->
+    <div class="card">
+      <div class="section-title">Rate this Internship</div>
+      <form method="POST" action="/review/{{ internship[0] }}">
+        <div style="margin-bottom:1rem;">
+          <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:8px;">Your Rating</label>
+          <div class="star-input">
+            {% for i in [5,4,3,2,1] %}
+            <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}"
+              {% if user_review and user_review[0]==i %}checked{% endif %}>
+            <label for="star{{ i }}">★</label>
+            {% endfor %}
+          </div>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:8px;">Your Review</label>
+          <textarea name="review" placeholder="Share your experience with this internship...">{% if user_review %}{{ user_review[1] }}{% endif %}</textarea>
+        </div>
+        <button type="submit" class="submit-btn">{% if user_review %}Update Review{% else %}Submit Review{% endif %}</button>
+      </form>
+    </div>
+
+    <!-- Reviews List -->
+    {% if reviews %}
+    <div class="card">
+      <div class="section-title">Student Reviews ({{ reviews|length }})</div>
+      {% for r in reviews %}
+      <div class="review-card">
+        <div class="review-header">
+          <div>
+            <div class="reviewer-name">{{ r[2] }}</div>
+            <div class="review-stars">{% for i in range(r[0]) %}⭐{% endfor %}</div>
+          </div>
+          <div class="review-date">{{ r[3].strftime('%d %b %Y') if r[3] else '' }}</div>
+        </div>
+        <div class="review-text">{{ r[1] }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+<script>
+  // All users data
+  const detailUsers = [
+    {% for u in all_users %}
+    { id: {{ u[0] }}, name: "{{ u[1] }}" }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  let selectedDetailUserId = null;
+
+  function renderDetailUsers(users) {
+    const list = document.getElementById('detailUserList');
+    if (!users.length) {
+      list.innerHTML = '<div style="text-align:center;padding:1.2rem;color:#94a3b8;font-size:13px;">No users found</div>';
+      return;
+    }
+    list.innerHTML = users.map(u => `
+      <div onclick="selectDetailUser(${u.id}, this)"
+        style="display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f5f3ff;transition:background 0.15s;"
+        onmouseover="this.style.background='#f5f3ff'" onmouseout="this.style.background=selectedDetailUserId===${u.id}?'#f5f3ff':'#fff'"
+        id="duser-${u.id}">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#6d28d9,#a855f7);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0;">${u.name.charAt(0).toUpperCase()}</div>
+        <div style="font-size:14px;font-weight:600;color:#1e1b4b;flex:1;">${u.name}</div>
+        <div id="dcheck-${u.id}" style="display:none;color:#6d28d9;font-weight:700;">✓</div>
+      </div>
+    `).join('');
+  }
+
+  function filterDetailUsers(query) {
+    const filtered = detailUsers.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
+    renderDetailUsers(filtered);
+  }
+
+  function selectDetailUser(userId, el) {
+    // Deselect previous
+    if (selectedDetailUserId) {
+      const prev = document.getElementById(`duser-${selectedDetailUserId}`);
+      if (prev) { prev.style.background = '#fff'; document.getElementById(`dcheck-${selectedDetailUserId}`).style.display = 'none'; }
+    }
+    selectedDetailUserId = userId;
+    el.style.background = '#f5f3ff';
+    document.getElementById(`dcheck-${userId}`).style.display = 'block';
+  }
+
+  function sendDetailShare() {
+    if (!selectedDetailUserId) { alert('Please select a friend to share with!'); return; }
+    const message = document.getElementById('detailShareMsg').value || 'Check out this internship!';
+    const formData = new FormData();
+    formData.append('to_user_id', selectedDetailUserId);
+    formData.append('message', message);
+    fetch('/share/{{ internship[0] }}', { method: 'POST', body: formData })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          document.getElementById('shareSuccessMsg').style.display = 'block';
+          document.getElementById('detailShareSearch').value = '';
+          selectedDetailUserId = null;
+          renderDetailUsers(detailUsers);
+          setTimeout(() => { document.getElementById('shareSuccessMsg').style.display = 'none'; }, 3000);
+        }
+      })
+      .catch(() => alert('Error sharing. Please try again.'));
+  }
+
+  // Initialize user list on page load
+  renderDetailUsers(detailUsers);
+</script>
 </body>
 </html>

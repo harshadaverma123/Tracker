@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skill Gap Analysis | Smart Internship Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;min-height:100vh;background:#f5f3ff;}
+    .navbar{background:linear-gradient(135deg,#3b0764,#7c3aed);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:0 4px 24px rgba(109,40,217,0.3);position:sticky;top:0;z-index:100;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .nav-icon{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .nav-title{font-size:16px;font-weight:700;color:#fff;}
+    .nav-links{display:flex;align-items:center;gap:6px;}
+    .nav-link{color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;text-decoration:none;padding:7px 14px;border-radius:10px;transition:all 0.2s;}
+    .nav-link:hover,.nav-link.active{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-logout{background:rgba(255,255,255,0.12);color:#fff;font-size:13px;font-weight:600;padding:7px 18px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.2);}
+    .main{max-width:1000px;margin:0 auto;padding:2.5rem 2rem;}
+    .page-header{background:linear-gradient(135deg,#3b0764,#6d28d9,#7c3aed);border-radius:24px;padding:2rem 2.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;}
+    .page-header::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(255,255,255,0.06);border-radius:50%;}
+    .page-header h1{font-family:'DM Serif Display',serif;font-size:26px;color:#fff;margin-bottom:6px;}
+    .page-header p{font-size:14px;color:rgba(255,255,255,0.55);}
+    .header-emoji{font-size:56px;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.3));}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:2rem;}
+    .card{background:#fff;border-radius:20px;padding:1.8rem;border:1px solid #ede9fe;box-shadow:0 2px 16px rgba(109,40,217,0.07);}
+    .card-title{font-family:'DM Serif Display',serif;font-size:18px;color:#1e1b4b;margin-bottom:1.2rem;}
+    .skill-tag{display:inline-block;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;margin:3px;}
+    .skill-have{background:#f0fdf4;color:#16a34a;border:1px solid #86efac;}
+    .skill-miss{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;}
+    .chart-wrap{height:240px;position:relative;}
+    .gap-card{background:#fff;border-radius:20px;border:1px solid #ede9fe;box-shadow:0 2px 16px rgba(109,40,217,0.07);padding:1.5rem;margin-bottom:12px;}
+    .gap-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .gap-title{font-size:15px;font-weight:700;color:#1e1b4b;}
+    .gap-company{font-size:12px;color:#7c3aed;font-weight:600;}
+    .match-bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+    .match-bar{flex:1;height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden;}
+    .match-fill{height:100%;border-radius:8px;transition:width 1s ease;}
+    .match-pct{font-size:13px;font-weight:700;min-width:40px;}
+    .skills-row{display:flex;flex-wrap:wrap;gap:4px;}
+    .section-title{font-family:'DM Serif Display',serif;font-size:20px;color:#1e1b4b;margin-bottom:1rem;}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">
+      <div class="nav-icon">🎯</div>
+      <span class="nav-title">Smart Internship Tracker</span>
+    </div>
+    <div class="nav-links">
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/analytics" class="nav-link">Analytics</a>
+      <a href="/skill-gap" class="nav-link active">Skill Gap</a>
+      <a href="/my-applications" class="nav-link">Applications</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/logout" class="nav-logout">Logout</a>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="page-header">
+      <div>
+        <h1>Skill Gap Analysis</h1>
+        <p>Discover which skills you need to improve your internship match</p>
+      </div>
+      <div class="header-emoji">🎯</div>
+    </div>
+
+    <div class="grid2">
+      <!-- Your Skills -->
+      <div class="card">
+        <div class="card-title">Your Current Skills</div>
+        {% for s in user_skills %}
+        <span class="skill-tag skill-have">{{ s.title() }}</span>
+        {% endfor %}
+        {% if not user_skills %}
+        <p style="color:#94a3b8;font-size:14px;">No skills added yet. Go to Profile to add skills!</p>
+        {% endif %}
+      </div>
+
+      <!-- Most Missing Skills Chart -->
+      <div class="card">
+        <div class="card-title">Most In-Demand Skills You Are Missing</div>
+        {% if missing_counts %}
+        <div class="chart-wrap"><canvas id="gapChart"></canvas></div>
+        {% else %}
+        <p style="color:#94a3b8;font-size:14px;margin-top:1rem;">Great! You have all required skills.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Internship Gap Analysis -->
+    <div class="section-title">Internship Match Breakdown</div>
+    {% for g in gap_data %}
+    <div class="gap-card">
+      <div class="gap-header">
+        <div>
+          <div class="gap-title">{{ g.title }}</div>
+          <div class="gap-company">{{ g.company }} · {{ g.field }}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:20px;font-weight:700;color:{% if g.match_pct >= 70 %}#16a34a{% elif g.match_pct >= 40 %}#d97706{% else %}#dc2626{% endif %}">{{ g.match_pct }}%</div>
+          <div style="font-size:11px;color:#94a3b8;">match</div>
+        </div>
+      </div>
+      <div class="match-bar-wrap">
+        <div class="match-bar">
+          <div class="match-fill" style="width:{{ g.match_pct }}%;background:{% if g.match_pct >= 70 %}linear-gradient(90deg,#16a34a,#22c55e){% elif g.match_pct >= 40 %}linear-gradient(90deg,#d97706,#f59e0b){% else %}linear-gradient(90deg,#dc2626,#ef4444){% endif %}"></div>
+        </div>
+      </div>
+      <div class="skills-row">
+        {% for s in g.matched %}<span class="skill-tag skill-have" style="font-size:11px;padding:3px 10px;">{{ s.title() }}</span>{% endfor %}
+        {% for s in g.missing %}<span class="skill-tag skill-miss" style="font-size:11px;padding:3px 10px;">Missing: {{ s.title() }}</span>{% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    {% if missing_counts %}
+    new Chart(document.getElementById('gapChart'), {
+      type: 'bar',
+      data: {
+        labels: [{% for m in missing_counts %}'{{ m[0].title() }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+          label: 'Times Missing',
+          data: [{% for m in missing_counts %}{{ m[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+          backgroundColor: 'rgba(220,38,38,0.7)',
+          borderRadius: 8, borderSkipped: false
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: { x: { grid:{color:'#f1f5f9'}, ticks:{stepSize:1} }, y: { grid:{display:false} } }
+      }
+    });
+    {% endif %}
+  </script>
+</body>
+</html>

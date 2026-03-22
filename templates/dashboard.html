@@ -8,183 +8,223 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; min-height: 100vh; background: #f5f3ff; }
+    body { font-family: 'DM Sans', sans-serif; min-height: 100vh; background: #f5f3ff; transition: background 0.3s, color 0.3s; }
+
+
+    /* ── SHARE MODAL ── */
+    .share-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center; }
+    .share-overlay.show { display: flex; }
+    .share-box { background: #fff; border-radius: 24px; padding: 2rem; width: 90%; max-width: 420px; box-shadow: 0 30px 80px rgba(0,0,0,0.25); animation: popIn 0.4s cubic-bezier(0.16,1,0.3,1); }
+    @keyframes popIn { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
+    .share-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #1e1b4b; margin-bottom: 4px; }
+    .share-sub { font-size: 13px; color: #94a3b8; margin-bottom: 1.2rem; }
+    .share-intern-name { background: #f5f3ff; border: 1px solid #ede9fe; border-radius: 10px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #6d28d9; margin-bottom: 1.2rem; }
+    .share-search { width: 100%; padding: 11px 16px; background: #fafafa; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: #1e1b4b; outline: none; transition: all 0.2s; margin-bottom: 8px; }
+    .share-search:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139,92,246,0.1); }
+    .user-list { max-height: 200px; overflow-y: auto; border: 1.5px solid #e5e7eb; border-radius: 12px; margin-bottom: 1rem; }
+    .user-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #f5f3ff; }
+    .user-item:last-child { border-bottom: none; }
+    .user-item:hover { background: #f5f3ff; }
+    .user-item.selected { background: #f5f3ff; border-left: 3px solid #6d28d9; }
+    .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg,#6d28d9,#a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+    .user-name { font-size: 14px; font-weight: 600; color: #1e1b4b; }
+    .user-check { margin-left: auto; color: #6d28d9; font-weight: 700; display: none; }
+    .user-item.selected .user-check { display: block; }
+    .share-msg { width: 100%; padding: 10px 14px; background: #fafafa; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: #1e1b4b; outline: none; resize: none; height: 70px; margin-bottom: 1rem; transition: all 0.2s; }
+    .share-msg:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139,92,246,0.1); }
+    .share-footer { display: flex; gap: 10px; justify-content: flex-end; }
+    .share-cancel { background: #f5f3ff; color: #6d28d9; border: none; border-radius: 10px; padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .share-send { background: linear-gradient(135deg,#6d28d9,#8b5cf6); color: #fff; border: none; border-radius: 10px; padding: 10px 24px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; box-shadow: 0 4px 14px rgba(109,40,217,0.3); transition: all 0.2s; }
+    .share-send:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(109,40,217,0.45); }
+    .no-users { text-align: center; padding: 1.5rem; color: #94a3b8; font-size: 13px; }
+    /* Share button on card */
+    .share-card-btn { display: flex; align-items: center; gap: 5px; background: none; border: 1px solid #ede9fe; color: #6d28d9; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; margin-top: 6px; }
+    .share-card-btn:hover { background: #f5f3ff; border-color: #c4b5fd; }
+    .share-success { display: none; background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 10px 16px; font-size: 13px; color: #16a34a; font-weight: 600; text-align: center; margin-bottom: 1rem; }
+    .share-success.show { display: block; }
+
+    /* ── DARK MODE ── */
+    body.dark { background: #0f0a1e; color: #e2d9f3; }
+    body.dark .navbar { background: linear-gradient(135deg, #1a0533, #3b0764) !important; }
+    body.dark .intern-card, body.dark .stat-card, body.dark .chart-section, body.dark .progress-section { background: #1a1035 !important; border-color: #2d1f5e !important; }
+    body.dark .card-title, body.dark h1 { color: #e2d9f3 !important; }
+    body.dark .card-desc { color: #a78bfa !important; }
+    body.dark .hero { background: linear-gradient(135deg,#1a0533,#3b0764,#4c1d95) !important; }
+    body.dark .filter-btn { background: #1a1035 !important; border-color: #3b0764 !important; color: #c4b5fd !important; }
+    body.dark .filter-btn.active { background: linear-gradient(135deg,#6d28d9,#a855f7) !important; color: #fff !important; }
+    body.dark .search-input { background: #1a1035 !important; border-color: #3b0764 !important; color: #e2d9f3 !important; }
+    body.dark .section-title { color: #c4b5fd !important; }
+    body.dark .stat-val, body.dark .mini-num { color: #c4b5fd !important; }
+    body.dark .card-company { color: #a78bfa !important; }
+    body.dark .stipend { color: #c4b5fd !important; }
+    body.dark .notes-toggle { border-color: #4c1d95 !important; color: #a78bfa !important; }
+    body.dark .modal-box { background: #1a1035 !important; }
+    body.dark h1, body.dark .modal-title { color: #e2d9f3 !important; }
 
     /* NAVBAR */
-    .navbar {
-      background: linear-gradient(135deg, #3b0764, #7c3aed);
-      padding: 0 2rem;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 64px;
-      box-shadow: 0 4px 24px rgba(109,40,217,0.3);
-      position: sticky; top: 0; z-index: 100;
-    }
+    .navbar { background: linear-gradient(135deg,#3b0764,#7c3aed); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 64px; box-shadow: 0 4px 24px rgba(109,40,217,0.3); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 4px; }
     .nav-logo { display: flex; align-items: center; gap: 10px; }
     .nav-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    .nav-title { font-size: 16px; font-weight: 700; color: #fff; }
-    .nav-links { display: flex; align-items: center; gap: 6px; }
-    .nav-link { color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 500; text-decoration: none; padding: 7px 16px; border-radius: 10px; transition: all 0.2s; }
+    .nav-title { font-size: 15px; font-weight: 700; color: #fff; }
+    .nav-links { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .nav-link { color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 500; text-decoration: none; padding: 6px 12px; border-radius: 10px; transition: all 0.2s; }
     .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.15); color: #fff; }
-    .nav-logout { background: rgba(255,255,255,0.12); color: #fff; font-size: 13px; font-weight: 600; padding: 7px 18px; border-radius: 10px; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; }
+    .nav-dark-btn { background: rgba(255,255,255,0.12); color: #fff; font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; font-family: 'DM Sans',sans-serif; transition: all 0.2s; }
+    .nav-dark-btn:hover { background: rgba(255,255,255,0.25); }
+    .nav-logout { background: rgba(255,255,255,0.12); color: #fff; font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: 10px; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; }
     .nav-logout:hover { background: rgba(255,255,255,0.25); }
 
-    /* MAIN */
-    .main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+    /* COMPARE BAR */
+    .compare-bar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,#3b0764,#6d28d9); color: #fff; padding: 14px 28px; border-radius: 20px; box-shadow: 0 8px 30px rgba(109,40,217,0.5); z-index: 999; display: none; align-items: center; gap: 16px; font-size: 14px; font-weight: 600; animation: slideUp 0.3s ease; }
+    .compare-bar.show { display: flex; }
+    @keyframes slideUp { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+    .compare-go-btn { background: #fff; color: #6d28d9; border: none; border-radius: 12px; padding: 8px 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'DM Sans',sans-serif; transition: all 0.2s; }
+    .compare-go-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .compare-clear { background: rgba(255,255,255,0.2); color: #fff; border: none; border-radius: 10px; padding: 7px 14px; font-size: 12px; cursor: pointer; font-family: 'DM Sans',sans-serif; }
 
-    /* Hero banner */
-    .hero {
-      background: linear-gradient(135deg, #3b0764, #6d28d9, #7c3aed);
-      border-radius: 24px;
-      padding: 2.5rem 3rem;
-      margin-bottom: 2rem;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 250px; height: 250px; background: rgba(255,255,255,0.06); border-radius: 50%; }
-    .hero::after  { content: ''; position: absolute; bottom: -80px; right: 100px; width: 200px; height: 200px; background: rgba(255,255,255,0.04); border-radius: 50%; }
-    .hero-text h1 { font-family: 'DM Serif Display', serif; font-size: 28px; color: #fff; margin-bottom: 8px; }
-    .hero-text p  { font-size: 14px; color: rgba(255,255,255,0.6); max-width: 380px; line-height: 1.6; }
-    .hero-emoji { font-size: 64px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3)); animation: float 4s ease-in-out infinite; position: relative; z-index: 1; }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-
-    /* Pickup line in hero */
-    .hero-pickup {
-      margin-top: 1rem;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 12px;
-      padding: 10px 16px;
-      font-size: 13px;
-      font-style: italic;
-      color: #e9d5ff;
-      display: inline-block;
-      animation: fadeIn 0.6s ease;
-      max-width: 400px;
-    }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-
-    /* Stats row */
-    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 2rem; }
-    .stat-card { background: #fff; border-radius: 18px; padding: 1.5rem; box-shadow: 0 2px 16px rgba(109,40,217,0.07); border: 1px solid #ede9fe; transition: transform 0.2s; }
-    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(109,40,217,0.12); }
-    .stat-icon { font-size: 28px; margin-bottom: 10px; }
-    .stat-val { font-size: 28px; font-weight: 700; color: #3b0764; margin-bottom: 4px; }
-    .stat-lbl { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-
-    /* Section title */
-    .section-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: 22px; color: #1e1b4b;
-      margin-bottom: 1.2rem;
-      display: flex; align-items: center; gap: 10px;
-    }
-
-    /* Filter bar */
-    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
-    .filter-btn { padding: 7px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1.5px solid #ede9fe; background: #fff; color: #6d28d9; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
-    .filter-btn:hover, .filter-btn.active { background: linear-gradient(135deg, #6d28d9, #a855f7); color: #fff; border-color: transparent; box-shadow: 0 4px 16px rgba(109,40,217,0.25); }
-
-    /* Internship cards grid */
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-    .intern-card {
-      background: #fff;
-      border-radius: 20px;
-      padding: 1.5rem;
-      border: 1px solid #ede9fe;
-      box-shadow: 0 2px 16px rgba(109,40,217,0.06);
-      transition: all 0.25s;
-      position: relative;
-      overflow: hidden;
-    }
-    .intern-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(135deg, #6d28d9, #a855f7); }
-    .intern-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(109,40,217,0.15); }
-    .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
-    .card-company { font-size: 12px; font-weight: 600; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.5px; }
-    .card-field { display: inline-block; background: #f5f3ff; color: #6d28d9; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px; border: 1px solid #ede9fe; }
-    .card-title { font-size: 17px; font-weight: 700; color: #1e1b4b; margin-bottom: 8px; line-height: 1.3; }
-    .card-desc { font-size: 13px; color: #64748b; line-height: 1.6; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .card-meta { display: flex; gap: 16px; margin-bottom: 16px; }
-    .meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #94a3b8; }
-    .card-footer { display: flex; align-items: center; justify-content: space-between; }
-    .stipend { font-size: 15px; font-weight: 700; color: #6d28d9; }
-    .apply-btn { background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff; font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: 10px; text-decoration: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; box-shadow: 0 4px 14px rgba(109,40,217,0.3); }
-    .apply-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(109,40,217,0.45); }
-
-    /* ── SKILL MATCH PERCENTAGE ── */
-    .match-percent-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-    .match-percent-label { font-size: 11px; font-weight: 700; min-width: 36px; }
-    .match-percent-bar { flex: 1; height: 6px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
-    .match-percent-fill { height: 100%; border-radius: 6px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
-    .match-pct-high   { color: #16a34a; }
-    .match-pct-medium { color: #d97706; }
-    .match-pct-low    { color: #7c3aed; }
-
-    /* ── PERSONAL NOTES ── */
-    .notes-toggle { display: flex; align-items: center; gap: 6px; background: none; border: 1px dashed #c4b5fd; color: #7c3aed; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; margin-top: 10px; width: 100%; justify-content: center; }
-    .notes-toggle:hover { background: #f5f3ff; border-color: #8b5cf6; }
-    .notes-box { display: none; margin-top: 10px; animation: slideDown 0.3s ease; }
-    .notes-box.open { display: block; }
-    @keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-    .notes-textarea { width: 100%; padding: 10px 12px; background: #fafafa; border: 1.5px solid #ede9fe; border-radius: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: #1e1b4b; outline: none; resize: none; height: 80px; transition: border-color 0.2s; }
-    .notes-textarea:focus { border-color: #8b5cf6; background: #fff; box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
-    .notes-save-btn { margin-top: 6px; background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
-    .notes-save-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(109,40,217,0.3); }
-    .notes-saved-msg { font-size: 11px; color: #16a34a; font-weight: 600; margin-left: 8px; display: none; }
-    .has-note { border-color: #a78bfa !important; background: linear-gradient(135deg, #faf5ff, #fff) !important; }
-    .has-note::before { background: linear-gradient(135deg, #a855f7, #6d28d9) !important; }
-
-    /* Notes modal overlay */
+    /* NOTES MODAL */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
     .modal-overlay.show { display: flex; }
     .modal-box { background: #fff; border-radius: 24px; padding: 2rem; width: 90%; max-width: 440px; box-shadow: 0 30px 80px rgba(0,0,0,0.2); animation: popIn 0.4s cubic-bezier(0.16,1,0.3,1); }
     @keyframes popIn { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
-    .modal-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #1e1b4b; margin-bottom: 4px; }
+    .modal-title { font-family: 'DM Serif Display',serif; font-size: 20px; color: #1e1b4b; margin-bottom: 4px; }
     .modal-sub { font-size: 13px; color: #94a3b8; margin-bottom: 1.2rem; }
-    .modal-textarea { width: 100%; padding: 12px 14px; background: #fafafa; border: 1.5px solid #ede9fe; border-radius: 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: #1e1b4b; outline: none; resize: none; height: 120px; transition: border-color 0.2s; }
+    .modal-textarea { width: 100%; padding: 12px 14px; background: #fafafa; border: 1.5px solid #ede9fe; border-radius: 12px; font-size: 14px; font-family: 'DM Sans',sans-serif; color: #1e1b4b; outline: none; resize: none; height: 120px; transition: border-color 0.2s; }
     .modal-textarea:focus { border-color: #8b5cf6; background: #fff; box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
     .modal-footer { display: flex; gap: 10px; margin-top: 1rem; justify-content: flex-end; }
-    .modal-cancel { background: #f5f3ff; color: #7c3aed; border: none; border-radius: 10px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-    .modal-save { background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: #fff; border: none; border-radius: 10px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; box-shadow: 0 4px 14px rgba(109,40,217,0.3); transition: all 0.2s; }
-    .modal-save:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(109,40,217,0.45); }
+    .modal-cancel { background: #f5f3ff; color: #7c3aed; border: none; border-radius: 10px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans',sans-serif; }
+    .modal-save { background: linear-gradient(135deg,#6d28d9,#8b5cf6); color: #fff; border: none; border-radius: 10px; padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans',sans-serif; box-shadow: 0 4px 14px rgba(109,40,217,0.3); }
 
-    /* ── SKILL MATCH BADGE ── */
-    .match-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-bottom: 10px; }
-    .match-high   { background: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
-    .match-medium { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
-    .match-low    { background: #f5f3ff; color: #7c3aed; border: 1px solid #c4b5fd; }
-    .match-bar { width: 100%; height: 4px; background: #f1f5f9; border-radius: 4px; margin-bottom: 12px; overflow: hidden; }
-    .match-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+    .main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-    /* ── CHART SECTION ── */
-    .chart-section { background: #fff; border-radius: 24px; padding: 2rem; border: 1px solid #ede9fe; box-shadow: 0 2px 16px rgba(109,40,217,0.07); margin-bottom: 2rem; }
-    .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-    .chart-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #1e1b4b; }
-    .chart-wrap { display: flex; align-items: center; gap: 2rem; }
-    .chart-canvas-wrap { width: 200px; height: 200px; flex-shrink: 0; }
-    .chart-legend { flex: 1; display: flex; flex-direction: column; gap: 12px; }
-    .legend-item { display: flex; align-items: center; gap: 10px; }
-    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .legend-label { font-size: 13px; color: #374151; font-weight: 500; flex: 1; }
-    .legend-val { font-size: 14px; font-weight: 700; color: #1e1b4b; }
+    /* HERO */
+    .hero { background: linear-gradient(135deg,#3b0764,#6d28d9,#7c3aed); border-radius: 24px; padding: 2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; }
+    .hero::before { content:''; position:absolute; top:-60px; right:-60px; width:250px; height:250px; background:rgba(255,255,255,0.06); border-radius:50%; }
+    .hero-text h1 { font-family:'DM Serif Display',serif; font-size:26px; color:#fff; margin-bottom:8px; }
+    .hero-text p  { font-size:14px; color:rgba(255,255,255,0.6); max-width:380px; line-height:1.6; }
+    .hero-emoji { font-size:60px; filter:drop-shadow(0 8px 16px rgba(0,0,0,0.3)); animation:float 4s ease-in-out infinite; position:relative; z-index:1; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .hero-tip { margin-top:1rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); border-radius:12px; padding:10px 16px; font-size:13px; font-weight:500; color:#e9d5ff; display:inline-block; animation:fadeIn 0.6s ease; max-width:460px; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
-    /* ── SEARCH BAR ── */
-    .search-wrap { position: relative; margin-bottom: 1.5rem; }
-    .search-input { width: 100%; padding: 13px 16px 13px 44px; background: #fff; border: 1.5px solid #ede9fe; border-radius: 14px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: #1e1b4b; outline: none; transition: all 0.22s; box-shadow: 0 2px 12px rgba(109,40,217,0.06); }
-    .search-input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139,92,246,0.1); }
-    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; pointer-events: none; }
+    /* STATS */
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:2rem; }
+    .stat-card { background:#fff; border-radius:18px; padding:1.5rem; box-shadow:0 2px 16px rgba(109,40,217,0.07); border:1px solid #ede9fe; transition:transform 0.2s; }
+    .stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 30px rgba(109,40,217,0.12); }
+    .stat-icon { font-size:28px; margin-bottom:10px; }
+    .stat-val { font-size:28px; font-weight:700; color:#3b0764; margin-bottom:4px; }
+    .stat-lbl { font-size:12px; color:#94a3b8; text-transform:uppercase; letter-spacing:1px; }
 
-    @media (max-width: 700px) { .stats-row { grid-template-columns: repeat(2,1fr); } .hero { flex-direction: column; text-align: center; } .hero-emoji { margin-top: 1rem; } .chart-wrap { flex-direction: column; } }
+    /* CHART */
+    .chart-section { background:#fff; border-radius:24px; padding:2rem; border:1px solid #ede9fe; box-shadow:0 2px 16px rgba(109,40,217,0.07); margin-bottom:2rem; }
+    .chart-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
+    .chart-title { font-family:'DM Serif Display',serif; font-size:20px; color:#1e1b4b; }
+    .chart-wrap { display:flex; align-items:center; gap:2rem; }
+    .chart-canvas-wrap { width:200px; height:200px; flex-shrink:0; }
+    .chart-legend { flex:1; display:flex; flex-direction:column; gap:12px; }
+    .legend-item { display:flex; align-items:center; gap:10px; }
+    .legend-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+    .legend-label { font-size:13px; color:#374151; font-weight:500; flex:1; }
+    .legend-val { font-size:14px; font-weight:700; color:#1e1b4b; }
+
+    /* SECTION TITLE */
+    .section-title { font-family:'DM Serif Display',serif; font-size:22px; color:#1e1b4b; margin-bottom:1.2rem; display:flex; align-items:center; gap:10px; }
+
+    /* SEARCH & FILTER */
+    .search-wrap { position:relative; margin-bottom:1rem; }
+    .search-input { width:100%; padding:13px 16px 13px 44px; background:#fff; border:1.5px solid #ede9fe; border-radius:14px; font-size:14px; font-family:'DM Sans',sans-serif; color:#1e1b4b; outline:none; transition:all 0.22s; box-shadow:0 2px 12px rgba(109,40,217,0.06); }
+    .search-input:focus { border-color:#8b5cf6; box-shadow:0 0 0 4px rgba(139,92,246,0.1); }
+    .search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px; pointer-events:none; }
+    .filter-sort-wrap { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:1.5rem; }
+    .filter-bar { display:flex; gap:8px; flex-wrap:wrap; }
+    .filter-btn { padding:7px 18px; border-radius:20px; font-size:13px; font-weight:500; cursor:pointer; border:1.5px solid #ede9fe; background:#fff; color:#6d28d9; transition:all 0.2s; font-family:'DM Sans',sans-serif; }
+    .filter-btn:hover, .filter-btn.active { background:linear-gradient(135deg,#6d28d9,#a855f7); color:#fff; border-color:transparent; box-shadow:0 4px 16px rgba(109,40,217,0.25); }
+    .sort-select { padding:7px 14px; border-radius:20px; font-size:13px; border:1.5px solid #ede9fe; background:#fff; color:#6d28d9; font-family:'DM Sans',sans-serif; cursor:pointer; outline:none; }
+
+    /* CARDS */
+    .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; }
+    .intern-card { background:#fff; border-radius:20px; padding:1.5rem; border:1px solid #ede9fe; box-shadow:0 2px 16px rgba(109,40,217,0.06); transition:all 0.25s; position:relative; overflow:hidden; }
+    .intern-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(135deg,#6d28d9,#a855f7); }
+    .intern-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px rgba(109,40,217,0.15); }
+    .card-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; margin-top:4px; }
+    .card-company { font-size:12px; font-weight:600; color:#7c3aed; text-transform:uppercase; letter-spacing:0.5px; }
+    .card-field { display:inline-block; background:#f5f3ff; color:#6d28d9; font-size:11px; font-weight:600; padding:3px 10px; border-radius:10px; border:1px solid #ede9fe; }
+    .card-title { font-size:16px; font-weight:700; color:#1e1b4b; margin-bottom:8px; line-height:1.3; }
+    .card-desc { font-size:13px; color:#64748b; line-height:1.6; margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .card-meta { display:flex; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
+    .meta-item { display:flex; align-items:center; gap:5px; font-size:12px; color:#94a3b8; }
+    .card-footer { display:flex; align-items:center; justify-content:space-between; }
+    .stipend { font-size:15px; font-weight:700; color:#6d28d9; }
+    .apply-btn { background:linear-gradient(135deg,#6d28d9,#8b5cf6); color:#fff; font-size:13px; font-weight:600; padding:8px 18px; border-radius:10px; text-decoration:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; box-shadow:0 4px 14px rgba(109,40,217,0.3); }
+    .apply-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(109,40,217,0.45); }
+
+    /* SKILL MATCH */
+    .match-percent-wrap { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .match-percent-label { font-size:11px; font-weight:700; min-width:36px; }
+    .match-percent-bar { flex:1; height:6px; background:#f1f5f9; border-radius:6px; overflow:hidden; }
+    .match-percent-fill { height:100%; border-radius:6px; transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+    .match-pct-high { color:#16a34a; }
+    .match-pct-medium { color:#d97706; }
+    .match-pct-low { color:#7c3aed; }
+    .match-badge { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; }
+    .match-high { background:#f0fdf4; color:#16a34a; border:1px solid #86efac; }
+    .match-medium { background:#fffbeb; color:#d97706; border:1px solid #fcd34d; }
+    .match-low { background:#f5f3ff; color:#7c3aed; border:1px solid #c4b5fd; }
+
+    /* BOOKMARK */
+    .bookmark-btn { position:absolute; top:16px; right:16px; background:none; border:none; font-size:18px; cursor:pointer; transition:transform 0.2s; z-index:5; text-decoration:none; }
+    .bookmark-btn:hover { transform:scale(1.3); }
+
+    /* COMPARE */
+    .compare-check-wrap { display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12px; color:#7c3aed; font-weight:500; cursor:pointer; }
+    .compare-check-wrap input { accent-color:#6d28d9; width:14px; height:14px; cursor:pointer; }
+
+    /* NOTES */
+    .notes-toggle { display:flex; align-items:center; gap:6px; background:none; border:1px dashed #c4b5fd; color:#7c3aed; font-size:12px; font-weight:500; padding:5px 12px; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; margin-top:10px; width:100%; justify-content:center; }
+    .notes-toggle:hover { background:#f5f3ff; border-color:#8b5cf6; }
+    .note-preview { margin-top:8px; padding:8px 12px; background:#f5f3ff; border-radius:8px; font-size:12px; color:#6d28d9; border-left:3px solid #8b5cf6; }
+
+    /* PROGRESS BAR */
+    .progress-section { background:#fff; border-radius:20px; padding:1.5rem 2rem; border:1px solid #ede9fe; box-shadow:0 2px 16px rgba(109,40,217,0.07); margin-bottom:2rem; }
+    .progress-heading { font-size:14px; font-weight:600; color:#1e1b4b; margin-bottom:1.2rem; display:flex; align-items:center; gap:6px; }
+    .progress-steps { display:flex; align-items:center; width:100%; }
+    .step { text-align:center; flex-shrink:0; }
+    .step-circle { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; margin:0 auto 6px; border:2px solid #ede9fe; background:#f5f3ff; color:#c4b5fd; transition:all 0.4s ease; }
+    .step.done .step-circle { background:linear-gradient(135deg,#6d28d9,#8b5cf6); border-color:#6d28d9; color:#fff; box-shadow:0 4px 14px rgba(109,40,217,0.4); }
+    .step.active .step-circle { background:#fff; border-color:#6d28d9; color:#6d28d9; box-shadow:0 0 0 4px rgba(109,40,217,0.12); }
+    .step-label { font-size:11px; color:#94a3b8; font-weight:500; white-space:nowrap; }
+    .step.done .step-label, .step.active .step-label { color:#6d28d9; font-weight:600; }
+    .step-line { flex:1; height:3px; background:#ede9fe; margin-bottom:24px; transition:background 0.4s; }
+    .step-line.done { background:linear-gradient(90deg,#6d28d9,#8b5cf6); }
+
+    @media (max-width:700px) { .stats-row { grid-template-columns:repeat(2,1fr); } .hero { flex-direction:column; text-align:center; } .hero-emoji { margin-top:1rem; } .chart-wrap { flex-direction:column; } }
   </style>
 </head>
 <body>
+
+
+  <!-- Share Modal -->
+  <div class="share-overlay" id="shareModal">
+    <div class="share-box">
+      <div class="share-title">Share Internship</div>
+      <div class="share-sub">Search and select a registered user to share with</div>
+      <div class="share-intern-name" id="shareInternName">Internship Name</div>
+      <div class="share-success" id="shareSuccess">Internship shared successfully!</div>
+      <input type="text" class="share-search" id="shareSearch" placeholder="Search by name..." oninput="filterUsers(this.value)" />
+      <div class="user-list" id="userList"></div>
+      <textarea class="share-msg" id="shareMsg" placeholder="Add a message (optional)...">Hey! I found this internship that might interest you!</textarea>
+      <div class="share-footer">
+        <button class="share-cancel" onclick="closeShare()">Cancel</button>
+        <button class="share-send" onclick="sendShare()">Send</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Notes Modal -->
   <div class="modal-overlay" id="notesModal">
     <div class="modal-box">
       <div class="modal-title">📝 Personal Notes</div>
-      <div class="modal-sub" id="modal-intern-name">Add your private notes for this internship</div>
+      <div class="modal-sub" id="modal-intern-name">Add your private notes</div>
       <textarea class="modal-textarea" id="modal-note-text" placeholder="e.g. Contact HR: hr@company.com&#10;Interview date: April 10&#10;Follow up on April 5..."></textarea>
       <div class="modal-footer">
         <button class="modal-cancel" onclick="closeModal()">Cancel</button>
@@ -193,16 +233,32 @@
     </div>
   </div>
 
+  <!-- Compare floating bar -->
+  <div class="compare-bar" id="compareBar">
+    <span id="compareCount">0 selected</span>
+    <button class="compare-go-btn" onclick="goCompare()">Compare Now</button>
+    <button class="compare-clear" onclick="clearCompare()">✕ Clear</button>
+  </div>
+
   <nav class="navbar">
     <div class="nav-logo">
       <div class="nav-icon">🎯</div>
       <span class="nav-title">Smart Internship Tracker</span>
     </div>
     <div class="nav-links">
-      <a href="/dashboard" class="nav-link active">🏠 Dashboard</a>
-      <a href="/my-applications" class="nav-link">📋 My Applications</a>
-      <a href="/profile" class="nav-link">👤 Profile</a>
-      <a href="/logout" class="nav-logout">Logout →</a>
+      <a href="/dashboard" class="nav-link active">Dashboard</a>
+      <a href="/analytics" class="nav-link">Analytics</a>
+      <a href="/calendar" class="nav-link">Calendar</a>
+      <a href="/skill-gap" class="nav-link">Skill Gap</a>
+      <a href="/recently-viewed" class="nav-link">History</a>
+      <a href="/bookmarks" class="nav-link">Saved</a>
+      <a href="/compare" class="nav-link">Compare</a>
+      <a href="/my-applications" class="nav-link">Applications</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/print-report" class="nav-link">Print</a>
+      <a href="/notifications" class="nav-link" id="notifLink" style="position:relative;">🔔<span id="notifBadge" style="display:none;position:absolute;top:2px;right:2px;background:#dc2626;color:#fff;font-size:9px;font-weight:700;width:14px;height:14px;border-radius:50%;text-align:center;line-height:14px;"></span></a>
+      <button onclick="toggleDark()" class="nav-dark-btn" id="darkBtn">Dark Mode</button>
+      <a href="/logout" class="nav-logout">Logout</a>
     </div>
   </nav>
 
@@ -212,82 +268,66 @@
       <div class="hero-text">
         <h1>Welcome back, {{ user_name }}! 👋</h1>
         <p>Your dream internship is out there — let's go find it today!</p>
-        <div class="hero-pickup" id="pickup">Loading...</div>
+        <div class="hero-tip" id="pickup">Loading...</div>
       </div>
       <div class="hero-emoji">🚀</div>
     </div>
 
     <!-- Stats -->
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-val">6</div><div class="stat-lbl">Available</div></div>
-      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-val">0</div><div class="stat-lbl">Applied</div></div>
-      <div class="stat-card"><div class="stat-icon">⏰</div><div class="stat-val">3</div><div class="stat-lbl">Deadlines Soon</div></div>
-      <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-val">50+</div><div class="stat-lbl">Companies</div></div>
+      <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-val">{{ (recommended|length) + (others|length) }}</div><div class="stat-lbl">Available</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-val">{{ applications_count.applied + applications_count.interview + applications_count.offered + applications_count.rejected }}</div><div class="stat-lbl">Applied</div></div>
+      <div class="stat-card"><div class="stat-icon">🎉</div><div class="stat-val">{{ applications_count.offered }}</div><div class="stat-lbl">Offered</div></div>
+      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-val">{{ recommended|length }}</div><div class="stat-lbl">Recommended</div></div>
     </div>
 
-    <!-- Internships -->
-    <!-- Application Stats Chart -->
+    <!-- Chart -->
     <div class="chart-section">
-      <div class="chart-header">
-        <div class="chart-title">📊 Your Application Stats</div>
-      </div>
+      <div class="chart-header"><div class="chart-title">📊 Your Application Stats</div></div>
       <div class="chart-wrap">
-        <div class="chart-canvas-wrap">
-          <canvas id="statsChart"></canvas>
-        </div>
+        <div class="chart-canvas-wrap"><canvas id="statsChart"></canvas></div>
         <div class="chart-legend">
-          <div class="legend-item">
-            <div class="legend-dot" style="background:#6d28d9"></div>
-            <span class="legend-label">Applied</span>
-            <span class="legend-val" id="leg-applied">0</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:#d97706"></div>
-            <span class="legend-label">Interview</span>
-            <span class="legend-val" id="leg-interview">0</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:#16a34a"></div>
-            <span class="legend-label">Offered 🎉</span>
-            <span class="legend-val" id="leg-offered">0</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-dot" style="background:#dc2626"></div>
-            <span class="legend-label">Rejected</span>
-            <span class="legend-val" id="leg-rejected">0</span>
-          </div>
-          <div class="legend-item" style="margin-top:8px; padding-top:8px; border-top:1px solid #f1f5f9;">
-            <div class="legend-dot" style="background:#1e1b4b"></div>
-            <span class="legend-label">Total</span>
-            <span class="legend-val" id="leg-total">0</span>
-          </div>
+          <div class="legend-item"><div class="legend-dot" style="background:#6d28d9"></div><span class="legend-label">Applied</span><span class="legend-val" id="leg-applied">0</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div><span class="legend-label">Interview</span><span class="legend-val" id="leg-interview">0</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div><span class="legend-label">Offered 🎉</span><span class="legend-val" id="leg-offered">0</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div><span class="legend-label">Rejected</span><span class="legend-val" id="leg-rejected">0</span></div>
+          <div class="legend-item" style="margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;"><div class="legend-dot" style="background:#1e1b4b"></div><span class="legend-label">Total</span><span class="legend-val" id="leg-total">0</span></div>
         </div>
       </div>
     </div>
 
-    <!-- Search Bar -->
+    <!-- Search + Sort -->
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
       <input type="text" class="search-input" id="searchInput" placeholder="Search internships by title, company or field..." oninput="searchCards(this.value)" />
     </div>
 
+    <!-- Recommended -->
     {% if recommended %}
-    <div class="section-title">⭐ Recommended For You</div>
-    <div class="cards-grid" style="margin-bottom: 2rem;">
+    <div class="section-title">Recommended For You</div>
+    <div class="cards-grid" style="margin-bottom:2rem;" id="recommended-grid">
       {% for i in recommended %}
-      {% set match_pct = skill_match[i[0]] if skill_match is defined and i[0] in skill_match else 90 %}
-      <div class="intern-card has-note" id="card-{{ i[0] }}" data-title="{{ i[1]|lower }}" data-company="{{ i[2]|lower }}" data-field="{{ i[4]|lower }}">
+      {% set score = skill_match[i[0]|string] if skill_match is defined and i[0]|string in skill_match else 90 %}
+      {% if score >= 70 %}{% set badge_class='match-high' %}{% set bar_color='linear-gradient(90deg,#16a34a,#22c55e)' %}{% set label='High Match' %}{% set pct_class='match-pct-high' %}
+      {% elif score >= 40 %}{% set badge_class='match-medium' %}{% set bar_color='linear-gradient(90deg,#d97706,#f59e0b)' %}{% set label='Good Match' %}{% set pct_class='match-pct-medium' %}
+      {% else %}{% set badge_class='match-low' %}{% set bar_color='linear-gradient(90deg,#6d28d9,#a855f7)' %}{% set label='Partial Match' %}{% set pct_class='match-pct-low' %}{% endif %}
+      <div class="intern-card" id="card-{{ i[0] }}" data-id="{{ i[0] }}" style="cursor:pointer;" onclick="if(!event.target.closest('a') && !event.target.closest('button') && !event.target.closest('input') && !event.target.closest('label')){window.location='/internship/{{ i[0] }}'}" data-title="{{ i[1]|lower }}" data-company="{{ i[2]|lower }}" data-field="{{ i[4]|lower }}" data-stipend="{{ i[5] }}" data-deadline="{{ i[6] }}">
+        <a href="/bookmark/{{ i[0] }}" class="bookmark-btn" title="{% if i[0]|string in bookmarked_ids %}Saved{% else %}Save{% endif %}">
+          {% if i[0]|string in bookmarked_ids %}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#6d28d9" stroke="#6d28d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          {% else %}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          {% endif %}
+        </a>
         <div class="card-top">
           <span class="card-company">{{ i[2] }}</span>
           <span class="card-field">{{ i[4] }}</span>
         </div>
         <div class="card-title">{{ i[1] }}</div>
         <div class="match-percent-wrap">
-          <span class="match-percent-label match-pct-high">{{ match_pct }}%</span>
-          <div class="match-percent-bar">
-            <div class="match-percent-fill" style="width:{{ match_pct }}%; background: linear-gradient(90deg,#16a34a,#22c55e)"></div>
-          </div>
-          <span class="match-badge match-high" style="font-size:10px; padding:2px 8px;">🎯 Match</span>
+          <span class="match-percent-label {{ pct_class }}">{{ score }}%</span>
+          <div class="match-percent-bar"><div class="match-percent-fill" style="width:{{ score }}%;background:{{ bar_color }}"></div></div>
+          <span class="match-badge {{ badge_class }}">{{ label }}</span>
         </div>
         <div class="card-desc">{{ i[3] }}</div>
         <div class="card-meta">
@@ -298,44 +338,66 @@
           <span class="stipend">{{ i[5] }}</span>
           <a href="{{ i[7] }}" class="apply-btn" target="_blank">Apply Now →</a>
         </div>
+        <label class="compare-check-wrap">
+          <input type="checkbox" class="compare-check" value="{{ i[0] }}" onchange="updateCompare(this)" /> Add to Compare
+        </label>
         <button class="notes-toggle" onclick="openModal({{ i[0] }}, '{{ i[1] }}')">
-          📝 {% if notes and i[0]|string in notes %}Edit Note ✏️{% else %}Add Personal Note{% endif %}
+          {% if notes and i[0]|string in notes %}Edit Note{% else %}Add Note{% endif %}
         </button>
         {% if notes and i[0]|string in notes %}
-        <div style="margin-top:8px; padding:8px 12px; background:#f5f3ff; border-radius:8px; font-size:12px; color:#6d28d9; border-left:3px solid #8b5cf6;">
-          {{ notes[i[0]|string] }}
-        </div>
+        <div class="note-preview">{{ notes[i[0]|string] }}</div>
         {% endif %}
+        <button class="share-card-btn" onclick="event.stopPropagation(); openShare({{ i[0] }}, '{{ i[1] }}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share with Friend
+        </button>
       </div>
       {% endfor %}
     </div>
     {% endif %}
 
-    <div class="section-title">🔥 All Internships</div>
-    <div class="filter-bar">
-      <button class="filter-btn active">All</button>
-      <button class="filter-btn">Python</button>
-      <button class="filter-btn">Web Dev</button>
-      <button class="filter-btn">Data Science</button>
-      <button class="filter-btn">Design</button>
-      <button class="filter-btn">Marketing</button>
+    <!-- All Internships -->
+    <div class="section-title">All Internships</div>
+    <div class="filter-sort-wrap">
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterCards(this,'all')">All</button>
+        <button class="filter-btn" onclick="filterCards(this,'python')">Python</button>
+        <button class="filter-btn" onclick="filterCards(this,'web')">Web Dev</button>
+        <button class="filter-btn" onclick="filterCards(this,'data science')">Data Science</button>
+        <button class="filter-btn" onclick="filterCards(this,'design')">Design</button>
+        <button class="filter-btn" onclick="filterCards(this,'marketing')">Marketing</button>
+      </div>
+      <select class="sort-select" onchange="sortCards(this.value)">
+        <option value="">Sort By</option>
+        <option value="stipend">💰 Highest Stipend</option>
+        <option value="deadline">📅 Nearest Deadline</option>
+        <option value="match">🎯 Best Match</option>
+      </select>
     </div>
 
-    <div class="cards-grid">
+    <div class="cards-grid" id="others-grid">
       {% for i in others %}
-      {% set match_pct = skill_match[i[0]] if skill_match is defined and i[0] in skill_match else 30 %}
-      <div class="intern-card" id="card-{{ i[0] }}" data-title="{{ i[1]|lower }}" data-company="{{ i[2]|lower }}" data-field="{{ i[4]|lower }}">
+      {% set score = skill_match[i[0]|string] if skill_match is defined and i[0]|string in skill_match else 20 %}
+      {% if score >= 70 %}{% set badge_class='match-high' %}{% set bar_color='linear-gradient(90deg,#16a34a,#22c55e)' %}{% set label='High Match' %}{% set pct_class='match-pct-high' %}
+      {% elif score >= 40 %}{% set badge_class='match-medium' %}{% set bar_color='linear-gradient(90deg,#d97706,#f59e0b)' %}{% set label='Good Match' %}{% set pct_class='match-pct-medium' %}
+      {% else %}{% set badge_class='match-low' %}{% set bar_color='linear-gradient(90deg,#6d28d9,#a855f7)' %}{% set label='Explore' %}{% set pct_class='match-pct-low' %}{% endif %}
+      <div class="intern-card" id="card-{{ i[0] }}" data-id="{{ i[0] }}" style="cursor:pointer;" onclick="if(!event.target.closest('a') && !event.target.closest('button') && !event.target.closest('input') && !event.target.closest('label')){window.location='/internship/{{ i[0] }}'}" data-title="{{ i[1]|lower }}" data-company="{{ i[2]|lower }}" data-field="{{ i[4]|lower }}" data-stipend="{{ i[5] }}" data-deadline="{{ i[6] }}" data-score="{{ score }}">
+        <a href="/bookmark/{{ i[0] }}" class="bookmark-btn" title="{% if i[0]|string in bookmarked_ids %}Saved{% else %}Save{% endif %}">
+          {% if i[0]|string in bookmarked_ids %}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#6d28d9" stroke="#6d28d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          {% else %}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          {% endif %}
+        </a>
         <div class="card-top">
           <span class="card-company">{{ i[2] }}</span>
           <span class="card-field">{{ i[4] }}</span>
         </div>
         <div class="card-title">{{ i[1] }}</div>
         <div class="match-percent-wrap">
-          <span class="match-percent-label match-pct-low">{{ match_pct }}%</span>
-          <div class="match-percent-bar">
-            <div class="match-percent-fill" style="width:{{ match_pct }}%; background: linear-gradient(90deg,#6d28d9,#a855f7)"></div>
-          </div>
-          <span class="match-badge match-low" style="font-size:10px; padding:2px 8px;">🔵 Explore</span>
+          <span class="match-percent-label {{ pct_class }}">{{ score }}%</span>
+          <div class="match-percent-bar"><div class="match-percent-fill" style="width:{{ score }}%;background:{{ bar_color }}"></div></div>
+          <span class="match-badge {{ badge_class }}">{{ label }}</span>
         </div>
         <div class="card-desc">{{ i[3] }}</div>
         <div class="card-meta">
@@ -346,21 +408,26 @@
           <span class="stipend">{{ i[5] }}</span>
           <a href="{{ i[7] }}" class="apply-btn" target="_blank">Apply Now →</a>
         </div>
+        <label class="compare-check-wrap">
+          <input type="checkbox" class="compare-check" value="{{ i[0] }}" onchange="updateCompare(this)" /> Add to Compare
+        </label>
         <button class="notes-toggle" onclick="openModal({{ i[0] }}, '{{ i[1] }}')">
-          📝 {% if notes and i[0]|string in notes %}Edit Note ✏️{% else %}Add Personal Note{% endif %}
+          {% if notes and i[0]|string in notes %}Edit Note{% else %}Add Note{% endif %}
         </button>
         {% if notes and i[0]|string in notes %}
-        <div style="margin-top:8px; padding:8px 12px; background:#f5f3ff; border-radius:8px; font-size:12px; color:#6d28d9; border-left:3px solid #8b5cf6;">
-          {{ notes[i[0]|string] }}
-        </div>
+        <div class="note-preview">{{ notes[i[0]|string] }}</div>
         {% endif %}
+        <button class="share-card-btn" onclick="event.stopPropagation(); openShare({{ i[0] }}, '{{ i[1] }}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share with Friend
+        </button>
       </div>
       {% endfor %}
 
       {% if not others and not recommended %}
-      <div style="grid-column:1/-1; text-align:center; padding:3rem; background:#fff; border-radius:20px; border:2px dashed #ede9fe;">
-        <div style="font-size:48px; margin-bottom:1rem;">🎯</div>
-        <h3 style="color:#1e1b4b; margin-bottom:8px;">No internships available yet!</h3>
+      <div style="grid-column:1/-1;text-align:center;padding:3rem;background:#fff;border-radius:20px;border:2px dashed #ede9fe;">
+        <div style="font-size:48px;margin-bottom:1rem;">🎯</div>
+        <h3 style="color:#1e1b4b;margin-bottom:8px;">No internships available yet!</h3>
         <p style="color:#94a3b8;">Check back soon for new opportunities.</p>
       </div>
       {% endif %}
@@ -368,82 +435,157 @@
   </div>
 
   <script>
-    // Filter buttons
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const filter = btn.textContent.trim().toLowerCase();
-        document.querySelectorAll('.intern-card').forEach(card => {
-          const field = card.dataset.field || '';
-          const title = card.dataset.title || '';
-          if (filter === 'all' || field.includes(filter) || title.includes(filter)) {
-            card.style.display = '';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      });
+
+    // ── ALL USERS DATA ──
+    const allUsers = [
+      {% for u in all_users %}
+      { id: {{ u[0] }}, name: "{{ u[1] }}" }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    // ── SHARE FEATURE ──
+    let shareInternId = null;
+    let selectedUserId = null;
+
+    function openShare(internId, internName) {
+      shareInternId = internId;
+      selectedUserId = null;
+      document.getElementById('shareInternName').textContent = internName;
+      document.getElementById('shareSearch').value = '';
+      document.getElementById('shareSuccess').classList.remove('show');
+      renderUsers(allUsers);
+      document.getElementById('shareModal').classList.add('show');
+    }
+
+    function closeShare() {
+      document.getElementById('shareModal').classList.remove('show');
+      shareInternId = null;
+      selectedUserId = null;
+    }
+
+    function renderUsers(users) {
+      const list = document.getElementById('userList');
+      if (users.length === 0) {
+        list.innerHTML = '<div class="no-users">No users found</div>';
+        return;
+      }
+      list.innerHTML = users.map(u => `
+        <div class="user-item ${selectedUserId === u.id ? 'selected' : ''}" onclick="selectUser(${u.id}, this)">
+          <div class="user-avatar">${u.name.charAt(0).toUpperCase()}</div>
+          <div class="user-name">${u.name}</div>
+          <div class="user-check">✓</div>
+        </div>
+      `).join('');
+    }
+
+    function filterUsers(query) {
+      const filtered = allUsers.filter(u => u.name.toLowerCase().includes(query.toLowerCase()));
+      renderUsers(filtered);
+    }
+
+    function selectUser(userId, el) {
+      selectedUserId = userId;
+      document.querySelectorAll('.user-item').forEach(item => item.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    function sendShare() {
+      if (!selectedUserId) { alert('Please select a user to share with!'); return; }
+      if (!shareInternId) return;
+      const message = document.getElementById('shareMsg').value || 'Check out this internship!';
+      const formData = new FormData();
+      formData.append('to_user_id', selectedUserId);
+      formData.append('message', message);
+      fetch(`/share/${shareInternId}`, { method: 'POST', body: formData })
+        .then(response => {
+          document.getElementById('shareSuccess').classList.add('show');
+          selectedUserId = null;
+          document.querySelectorAll('.user-item').forEach(item => item.classList.remove('selected'));
+          setTimeout(() => { closeShare(); }, 1500);
+        })
+        .catch(err => { alert('Error sharing. Please try again.'); });
+    }
+
+    document.getElementById('shareModal').addEventListener('click', function(e) {
+      if (e.target === this) closeShare();
     });
 
-    // Search function
-    function searchCards(query) {
-      const q = query.toLowerCase();
+    // ── DARK MODE ──
+    if (localStorage.getItem('darkMode') === 'on') {
+      document.body.classList.add('dark');
+      document.getElementById('darkBtn').textContent = '☀️ Light';
+    }
+    function toggleDark() {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      localStorage.setItem('darkMode', isDark ? 'on' : 'off');
+      document.getElementById('darkBtn').textContent = isDark ? '☀️ Light' : 'Dark Mode';
+    }
+
+    // ── SEARCH ──
+    function searchCards(q) {
+      q = q.toLowerCase();
       document.querySelectorAll('.intern-card').forEach(card => {
-        const title   = card.dataset.title   || '';
-        const company = card.dataset.company || '';
-        const field   = card.dataset.field   || '';
-        card.style.display = (title.includes(q) || company.includes(q) || field.includes(q)) ? '' : 'none';
+        const match = card.dataset.title.includes(q) || card.dataset.company.includes(q) || card.dataset.field.includes(q);
+        card.style.display = match ? '' : 'none';
       });
     }
 
-    // ── APPLICATION STATS CHART ──
-    const applied   = {{ applications_count.applied   | default(0) }};
-    const interview = {{ applications_count.interview | default(0) }};
-    const offered   = {{ applications_count.offered   | default(0) }};
-    const rejected  = {{ applications_count.rejected  | default(0) }};
-    const total = applied + interview + offered + rejected;
+    // ── FILTER ──
+    function filterCards(btn, field) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('#others-grid .intern-card').forEach(card => {
+        card.style.display = (field === 'all' || card.dataset.field.includes(field)) ? '' : 'none';
+      });
+    }
 
-    document.getElementById('leg-applied').textContent   = applied;
-    document.getElementById('leg-interview').textContent = interview;
-    document.getElementById('leg-offered').textContent   = offered;
-    document.getElementById('leg-rejected').textContent  = rejected;
-    document.getElementById('leg-total').textContent     = total;
+    // ── SORT ──
+    function sortCards(by) {
+      const grid = document.getElementById('others-grid');
+      const cards = [...grid.querySelectorAll('.intern-card')];
+      cards.sort((a, b) => {
+        if (by === 'stipend') {
+          const getNum = s => parseInt(s.dataset.stipend.replace(/[^0-9]/g,'')) || 0;
+          return getNum(b) - getNum(a);
+        }
+        if (by === 'deadline') return new Date(a.dataset.deadline) - new Date(b.dataset.deadline);
+        if (by === 'match') return (parseInt(b.dataset.score)||0) - (parseInt(a.dataset.score)||0);
+        return 0;
+      });
+      cards.forEach(c => grid.appendChild(c));
+    }
 
-    const ctx = document.getElementById('statsChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Applied','Interview','Offered','Rejected'],
-        datasets: [{
-          data: [applied || 1, interview, offered, rejected],
-          backgroundColor: ['#6d28d9','#d97706','#16a34a','#dc2626'],
-          borderWidth: 3,
-          borderColor: '#fff',
-          hoverOffset: 8
-        }]
-      },
-      options: {
-        cutout: '72%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => ` ${ctx.label}: ${ctx.raw === 1 && total === 0 ? 0 : ctx.raw}`
-            }
-          }
-        },
-        animation: { animateRotate: true, duration: 1200 }
+    // ── COMPARE ──
+    let compareIds = [];
+    function updateCompare(cb) {
+      if (cb.checked) {
+        if (compareIds.length >= 2) { cb.checked = false; alert('You can only compare 2 internships at a time!'); return; }
+        compareIds.push(cb.value);
+      } else {
+        compareIds = compareIds.filter(id => id !== cb.value);
       }
-    });
+      const bar = document.getElementById('compareBar');
+      const count = document.getElementById('compareCount');
+      count.textContent = compareIds.length + ' selected';
+      compareIds.length > 0 ? bar.classList.add('show') : bar.classList.remove('show');
+    }
+    function goCompare() {
+      if (compareIds.length < 2) { alert('Please select 2 internships to compare!'); return; }
+      window.location.href = '/compare?id1=' + compareIds[0] + '&id2=' + compareIds[1];
+    }
+    function clearCompare() {
+      compareIds = [];
+      document.querySelectorAll('.compare-check').forEach(cb => cb.checked = false);
+      document.getElementById('compareBar').classList.remove('show');
+    }
 
-    // ── PERSONAL NOTES MODAL ──
+    // ── NOTES MODAL ──
     let currentInternId = null;
-    function openModal(internId, internName) {
-      currentInternId = internId;
-      document.getElementById('modal-intern-name').textContent = '📌 ' + internName;
-      const existing = localStorage.getItem('note_' + internId) || '';
-      document.getElementById('modal-note-text').value = existing;
+    function openModal(id, name) {
+      currentInternId = id;
+      document.getElementById('modal-intern-name').textContent = '📌 ' + name;
+      document.getElementById('modal-note-text').value = localStorage.getItem('note_' + id) || '';
       document.getElementById('notesModal').classList.add('show');
     }
     function closeModal() {
@@ -452,42 +594,60 @@
     }
     function saveNote() {
       const note = document.getElementById('modal-note-text').value.trim();
-      if (currentInternId) {
-        // Save to localStorage for instant display
-        localStorage.setItem('note_' + currentInternId, note);
-        // Also save to server via fetch
-        fetch('/save-note', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ internship_id: currentInternId, note: note })
-        }).then(() => {
-          closeModal();
-          // Reload to show updated note
-          window.location.reload();
-        }).catch(() => {
-          closeModal();
-          window.location.reload();
-        });
-      }
+      if (!currentInternId) return;
+      localStorage.setItem('note_' + currentInternId, note);
+      fetch('/save-note', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({internship_id: currentInternId, note: note})
+      }).then(() => { closeModal(); window.location.reload(); });
     }
-    // Close modal on overlay click
-    document.getElementById('notesModal').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
+    document.getElementById('notesModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+    // ── CHART ──
+    const applied   = {{ applications_count.applied   | default(0) }};
+    const interview = {{ applications_count.interview | default(0) }};
+    const offered   = {{ applications_count.offered   | default(0) }};
+    const rejected  = {{ applications_count.rejected  | default(0) }};
+    const total = applied + interview + offered + rejected;
+    document.getElementById('leg-applied').textContent   = applied;
+    document.getElementById('leg-interview').textContent = interview;
+    document.getElementById('leg-offered').textContent   = offered;
+    document.getElementById('leg-rejected').textContent  = rejected;
+    document.getElementById('leg-total').textContent     = total;
+    new Chart(document.getElementById('statsChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Applied','Interview','Offered','Rejected'],
+        datasets: [{ data: [applied||1, interview, offered, rejected], backgroundColor: ['#6d28d9','#d97706','#16a34a','#dc2626'], borderWidth: 3, borderColor: '#fff', hoverOffset: 8 }]
+      },
+      options: { cutout:'72%', plugins:{ legend:{display:false} }, animation:{animateRotate:true,duration:1200} }
     });
 
-    // Pickup lines
+    // ── PICKUP LINES ──
     const lines = [
-      "Are you an internship? Because I've been searching for you everywhere! 😍",
-      "Is your name Google? Because you have everything I've been looking for! 🔍",
-      "Are you a deadline? Because I can't stop thinking about you! ⏰",
-      "Do you believe in love at first application? Because I just applied! 💌",
-      "Are you WiFi? Because I feel a strong connection here! 📶",
-      "Are you a hiring manager? Because you just made my day! 💼",
+      "Tip: Update your skills in Profile to get better internship matches.",
+      "Tip: Apply early — most companies shortlist first-come applicants.",
+      "Tip: Tailor your resume for each internship field you apply to.",
+      "Tip: Use the Compare feature to pick the best opportunity for you.",
+      "Tip: Save internships you like using the bookmark icon on each card.",
+      "Tip: Check deadlines regularly — some close earlier than expected.",
     ];
     let idx = 0;
     const el = document.getElementById('pickup');
-    function show() { el.style.animation='none'; el.offsetHeight; el.style.animation='fadeIn 0.6s ease'; el.textContent='💬 '+lines[idx]; idx=(idx+1)%lines.length; }
+    function show() { el.style.animation='none'; el.offsetHeight; el.style.animation='fadeIn 0.6s ease'; el.textContent='💡 '+lines[idx]; idx=(idx+1)%lines.length; }
     show(); setInterval(show, 3500);
+
+    // Fetch notification count
+    fetch('/notification-count')
+      .then(r => r.json())
+      .then(data => {
+        if (data.count > 0) {
+          const badge = document.getElementById('notifBadge');
+          if (badge) { badge.style.display = 'block'; badge.textContent = data.count; }
+        }
+      });
+
   </script>
 </body>
 </html>

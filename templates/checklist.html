@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Application Checklist | Smart Internship Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;min-height:100vh;background:#f5f3ff;}
+    .navbar{background:linear-gradient(135deg,#3b0764,#7c3aed);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:0 4px 24px rgba(109,40,217,0.3);position:sticky;top:0;z-index:100;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .nav-icon{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .nav-title{font-size:16px;font-weight:700;color:#fff;}
+    .nav-links{display:flex;align-items:center;gap:6px;}
+    .nav-link{color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;text-decoration:none;padding:7px 14px;border-radius:10px;transition:all 0.2s;}
+    .nav-link:hover{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-logout{background:rgba(255,255,255,0.12);color:#fff;font-size:13px;font-weight:600;padding:7px 18px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.2);}
+    .main{max-width:600px;margin:0 auto;padding:2.5rem 2rem;}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;color:#7c3aed;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:1.5rem;}
+    .card{background:#fff;border-radius:24px;padding:2rem;border:1px solid #ede9fe;box-shadow:0 2px 16px rgba(109,40,217,0.07);}
+    .intern-name{font-family:'DM Serif Display',serif;font-size:22px;color:#1e1b4b;margin-bottom:4px;}
+    .intern-company{font-size:14px;color:#7c3aed;font-weight:600;margin-bottom:6px;}
+    .deadline{font-size:13px;color:#dc2626;font-weight:600;margin-bottom:2rem;}
+    .progress-bar{width:100%;height:10px;background:#f1f5f9;border-radius:10px;overflow:hidden;margin-bottom:1.5rem;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#6d28d9,#a855f7);border-radius:10px;transition:width 0.5s ease;}
+    .progress-text{font-size:13px;color:#7c3aed;font-weight:600;margin-bottom:1.5rem;text-align:center;}
+    .checklist-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #f5f3ff;cursor:pointer;}
+    .checklist-item:last-child{border-bottom:none;}
+    .check-box{width:22px;height:22px;border-radius:6px;border:2px solid #c4b5fd;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+    input[type=checkbox]{display:none;}
+    input[type=checkbox]:checked+.checklist-label .check-box{background:linear-gradient(135deg,#6d28d9,#8b5cf6);border-color:transparent;}
+    input[type=checkbox]:checked+.checklist-label .check-text{text-decoration:line-through;color:#94a3b8;}
+    .checklist-label{display:flex;align-items:center;gap:14px;cursor:pointer;flex:1;}
+    .check-text{font-size:14px;font-weight:500;color:#1e1b4b;transition:all 0.2s;}
+    .check-desc{font-size:12px;color:#94a3b8;display:block;margin-top:2px;}
+    .save-btn{width:100%;padding:13px;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:1.5rem;font-family:'DM Sans',sans-serif;box-shadow:0 6px 20px rgba(109,40,217,0.3);transition:all 0.25s;}
+    .save-btn:hover{transform:translateY(-2px);}
+    .checkmark{color:#fff;font-size:14px;font-weight:700;}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo"><div class="nav-icon">🎯</div><span class="nav-title">Smart Internship Tracker</span></div>
+    <div class="nav-links">
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/my-applications" class="nav-link">Applications</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/logout" class="nav-logout">Logout</a>
+    </div>
+  </nav>
+  <div class="main">
+    <a href="/my-applications" class="back-btn">← Back to Applications</a>
+    <div class="card">
+      {% if app_info %}
+      <div class="intern-name">{{ app_info[0] }}</div>
+      <div class="intern-company">{{ app_info[1] }}</div>
+      <div class="deadline">Deadline: {{ app_info[2] }}</div>
+      {% endif %}
+
+      {% set checked = [] %}
+      {% if check %}
+        {% if check[2] %}{% set checked = checked + [1] %}{% endif %}
+        {% if check[3] %}{% set checked = checked + [1] %}{% endif %}
+        {% if check[4] %}{% set checked = checked + [1] %}{% endif %}
+        {% if check[5] %}{% set checked = checked + [1] %}{% endif %}
+        {% if check[6] %}{% set checked = checked + [1] %}{% endif %}
+      {% endif %}
+      {% set pct = (checked|length * 20) %}
+
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:{{ pct }}%"></div>
+      </div>
+      <div class="progress-text">{{ pct }}% Ready to Apply</div>
+
+      <form method="POST" action="/checklist/{{ app_id }}">
+        <div class="checklist-item">
+          <input type="checkbox" name="resume_ready" id="resume" {% if check and check[2] %}checked{% endif %}>
+          <label class="checklist-label" for="resume">
+            <div class="check-box"><span class="checkmark">✓</span></div>
+            <div><div class="check-text">Resume is updated and ready</div><span class="check-desc">Make sure your latest resume is ready to submit</span></div>
+          </label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" name="skills_match" id="skills" {% if check and check[3] %}checked{% endif %}>
+          <label class="checklist-label" for="skills">
+            <div class="check-box"><span class="checkmark">✓</span></div>
+            <div><div class="check-text">Skills match internship requirements</div><span class="check-desc">Verify your skills align with what the company needs</span></div>
+          </label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" name="deadline_checked" id="deadline" {% if check and check[4] %}checked{% endif %}>
+          <label class="checklist-label" for="deadline">
+            <div class="check-box"><span class="checkmark">✓</span></div>
+            <div><div class="check-text">Application deadline noted</div><span class="check-desc">Add the deadline to your calendar</span></div>
+          </label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" name="cover_letter" id="cover" {% if check and check[5] %}checked{% endif %}>
+          <label class="checklist-label" for="cover">
+            <div class="check-box"><span class="checkmark">✓</span></div>
+            <div><div class="check-text">Cover letter prepared</div><span class="check-desc">Write a tailored cover letter for this company</span></div>
+          </label>
+        </div>
+        <div class="checklist-item">
+          <input type="checkbox" name="company_researched" id="company" {% if check and check[6] %}checked{% endif %}>
+          <label class="checklist-label" for="company">
+            <div class="check-box"><span class="checkmark">✓</span></div>
+            <div><div class="check-text">Company research done</div><span class="check-desc">Know the company's work, mission and culture</span></div>
+          </label>
+        </div>
+        <button type="submit" class="save-btn">Save Checklist</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const total = document.querySelectorAll('input[type=checkbox]').length;
+        const checked = document.querySelectorAll('input[type=checkbox]:checked').length;
+        const pct = Math.round((checked/total)*100);
+        document.querySelector('.progress-fill').style.width = pct + '%';
+        document.querySelector('.progress-text').textContent = pct + '% Ready to Apply';
+      });
+    });
+  </script>
+</body>
+</html>

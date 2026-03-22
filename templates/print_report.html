@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Application Report | Smart Internship Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; min-height: 100vh; background: #f5f3ff; }
+
+    /* NAVBAR - hidden on print */
+    .navbar { background: linear-gradient(135deg,#3b0764,#7c3aed); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 64px; box-shadow: 0 4px 24px rgba(109,40,217,0.3); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .nav-title { font-size: 16px; font-weight: 700; color: #fff; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
+    .nav-link { color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 500; text-decoration: none; padding: 7px 14px; border-radius: 10px; transition: all 0.2s; }
+    .nav-link:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .nav-logout { background: rgba(255,255,255,0.12); color: #fff; font-size: 13px; font-weight: 600; padding: 7px 18px; border-radius: 10px; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); }
+
+    .main { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem; }
+
+    /* Action Buttons */
+    .action-bar { display: flex; gap: 12px; margin-bottom: 1.5rem; }
+    .print-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg,#6d28d9,#8b5cf6); color: #fff; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 12px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; box-shadow: 0 6px 20px rgba(109,40,217,0.3); transition: all 0.2s; }
+    .print-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(109,40,217,0.45); }
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #6d28d9; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 12px; border: 1.5px solid #ede9fe; text-decoration: none; transition: all 0.2s; }
+    .back-btn:hover { background: #f5f3ff; }
+
+    /* Report Card */
+    .report { background: #fff; border-radius: 24px; padding: 3rem; border: 1px solid #ede9fe; box-shadow: 0 2px 16px rgba(109,40,217,0.07); }
+
+    /* Report Header */
+    .report-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 1.5rem; border-bottom: 2px solid #f5f3ff; margin-bottom: 2rem; }
+    .report-logo { display: flex; align-items: center; gap: 14px; }
+    .logo-box { width: 52px; height: 52px; background: linear-gradient(135deg,#6d28d9,#a855f7); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+    .logo-name { font-family: 'DM Serif Display', serif; font-size: 20px; color: #1e1b4b; }
+    .logo-sub { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .report-meta { text-align: right; }
+    .report-meta-title { font-size: 16px; font-weight: 700; color: #1e1b4b; margin-bottom: 4px; }
+    .report-meta-date { font-size: 13px; color: #94a3b8; }
+
+    /* Student Info */
+    .student-section { margin-bottom: 2rem; }
+    .section-label { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .student-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .student-item { background: #faf9ff; border-radius: 14px; padding: 1rem 1.2rem; border: 1px solid #ede9fe; }
+    .student-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+    .student-val { font-size: 14px; font-weight: 600; color: #1e1b4b; }
+
+    /* Summary Stats */
+    .summary-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 2rem; }
+    .summary-card { background: #faf9ff; border-radius: 14px; padding: 1rem; border: 1px solid #ede9fe; text-align: center; }
+    .summary-num { font-size: 28px; font-weight: 700; color: #6d28d9; margin-bottom: 4px; }
+    .summary-lbl { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-bottom: 2rem; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    thead tr { background: linear-gradient(135deg,#3b0764,#6d28d9); }
+    th { color: #fff; padding: 12px 16px; font-size: 12px; font-weight: 600; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
+    th:first-child { border-radius: 12px 0 0 0; }
+    th:last-child { border-radius: 0 12px 0 0; }
+    td { padding: 12px 16px; font-size: 13px; color: #374151; border-bottom: 1px solid #f5f3ff; }
+    tr:hover td { background: #faf9ff; }
+    tr:last-child td { border-bottom: none; }
+
+    /* Status badges */
+    .status-pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .status-applied  { background: #f5f3ff; color: #6d28d9; border: 1px solid #c4b5fd; }
+    .status-interview{ background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
+    .status-offered  { background: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+    .status-rejected { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 3rem; color: #94a3b8; }
+    .empty-icon { font-size: 48px; margin-bottom: 1rem; display: block; }
+
+    /* Report Footer */
+    .report-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; border-top: 2px solid #f5f3ff; }
+    .footer-left { font-size: 12px; color: #94a3b8; }
+    .footer-right { display: flex; gap: 14px; }
+    .footer-badge { background: #f5f3ff; color: #6d28d9; font-size: 12px; font-weight: 700; padding: 6px 16px; border-radius: 20px; border: 1px solid #ede9fe; }
+    .footer-badge.green { background: #f0fdf4; color: #16a34a; border-color: #86efac; }
+
+    /* PRINT STYLES */
+    @media print {
+      .navbar, .action-bar { display: none !important; }
+      body { background: #fff !important; }
+      .main { padding: 0 !important; max-width: 100% !important; }
+      .report { box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 1rem !important; }
+      .summary-card, .student-item { background: #f9f9f9 !important; }
+      thead tr { background: #3b0764 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .status-pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">
+      <div class="nav-icon">🎯</div>
+      <span class="nav-title">Smart Internship Tracker</span>
+    </div>
+    <div class="nav-links">
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/my-applications" class="nav-link">Applications</a>
+      <a href="/analytics" class="nav-link">Analytics</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/logout" class="nav-logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="main">
+    <!-- Action Buttons -->
+    <div class="action-bar">
+      <button class="print-btn" onclick="window.print()">🖨️ Print This Report</button>
+      <a href="/my-applications" class="back-btn">← Back to Applications</a>
+    </div>
+
+    <div class="report">
+      <!-- Report Header -->
+      <div class="report-header">
+        <div class="report-logo">
+          <div class="logo-box">🎯</div>
+          <div>
+            <div class="logo-name">Smart Internship Tracker</div>
+            <div class="logo-sub">Internship Application Progress Report</div>
+          </div>
+        </div>
+        <div class="report-meta">
+          <div class="report-meta-title">Application Report</div>
+          <div class="report-meta-date">Generated: {{ now.strftime('%d %B %Y, %I:%M %p') }}</div>
+        </div>
+      </div>
+
+      <!-- Student Info -->
+      <div class="student-section">
+        <div class="section-label">Student Information</div>
+        <div class="student-grid">
+          <div class="student-item">
+            <div class="student-label">Full Name</div>
+            <div class="student-val">{{ user[1] }}</div>
+          </div>
+          <div class="student-item">
+            <div class="student-label">Email Address</div>
+            <div class="student-val">{{ user[2] }}</div>
+          </div>
+          <div class="student-item">
+            <div class="student-label">Skills</div>
+            <div class="student-val">{{ user[5] if user[5] else 'Not specified' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="section-label">Summary</div>
+      <div class="summary-grid" style="margin-bottom:2rem;">
+        <div class="summary-card">
+          <div class="summary-num">{{ applications|length }}</div>
+          <div class="summary-lbl">Total Applied</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-num" style="color:#d97706;">{{ applications|selectattr(6,'equalto','Interview')|list|length }}</div>
+          <div class="summary-lbl">Interviews</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-num" style="color:#16a34a;">{{ applications|selectattr(6,'equalto','Offered')|list|length }}</div>
+          <div class="summary-lbl">Offers</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-num" style="color:#dc2626;">{{ applications|selectattr(6,'equalto','Rejected')|list|length }}</div>
+          <div class="summary-lbl">Rejected</div>
+        </div>
+      </div>
+
+      <!-- Applications Table -->
+      <div class="section-label">Application Details</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Internship Title</th>
+              <th>Company</th>
+              <th>Field</th>
+              <th>Stipend</th>
+              <th>Deadline</th>
+              <th>Applied On</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in applications %}
+            <tr>
+              <td style="font-weight:700;color:#6d28d9;">{{ loop.index }}</td>
+              <td style="font-weight:600;color:#1e1b4b;">{{ a[1] }}</td>
+              <td>{{ a[2] }}</td>
+              <td>{{ a[3] }}</td>
+              <td style="font-weight:600;color:#6d28d9;">{{ a[4] }}</td>
+              <td>{{ a[5] }}</td>
+              <td>{{ a[7].strftime('%d %b %Y') if a[7] else 'N/A' }}</td>
+              <td>
+                <span class="status-pill status-{{ a[6]|lower }}">{{ a[6] }}</span>
+              </td>
+            </tr>
+            {% endfor %}
+            {% if not applications %}
+            <tr>
+              <td colspan="8" class="empty-state">
+                <span class="empty-icon">📋</span>
+                No applications yet. Start applying to internships from the dashboard!
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Report Footer -->
+      <div class="report-footer">
+        <div class="footer-left">
+          Smart Internship Tracker — College Mini Project<br>
+          This report is confidential and for academic purposes only.
+        </div>
+        <div class="footer-right">
+          <div class="footer-badge">Total: {{ applications|length }}</div>
+          <div class="footer-badge green">Offered: {{ applications|selectattr(6,'equalto','Offered')|list|length }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

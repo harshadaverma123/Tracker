@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recently Viewed | Smart Internship Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;min-height:100vh;background:#f5f3ff;}
+    .navbar{background:linear-gradient(135deg,#3b0764,#7c3aed);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:0 4px 24px rgba(109,40,217,0.3);position:sticky;top:0;z-index:100;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .nav-icon{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .nav-title{font-size:16px;font-weight:700;color:#fff;}
+    .nav-links{display:flex;align-items:center;gap:6px;}
+    .nav-link{color:rgba(255,255,255,0.7);font-size:13px;font-weight:500;text-decoration:none;padding:7px 14px;border-radius:10px;transition:all 0.2s;}
+    .nav-link:hover,.nav-link.active{background:rgba(255,255,255,0.15);color:#fff;}
+    .nav-logout{background:rgba(255,255,255,0.12);color:#fff;font-size:13px;font-weight:600;padding:7px 18px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.2);}
+    .main{max-width:900px;margin:0 auto;padding:2.5rem 2rem;}
+    .page-header{background:linear-gradient(135deg,#3b0764,#6d28d9,#7c3aed);border-radius:24px;padding:2rem 2.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;}
+    .page-header::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(255,255,255,0.06);border-radius:50%;}
+    .page-header h1{font-family:'DM Serif Display',serif;font-size:26px;color:#fff;margin-bottom:6px;}
+    .page-header p{font-size:14px;color:rgba(255,255,255,0.55);}
+    .header-emoji{font-size:56px;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.3));}
+    .card{background:#fff;border-radius:18px;padding:1.3rem 1.5rem;border:1px solid #ede9fe;box-shadow:0 2px 12px rgba(109,40,217,0.06);display:flex;align-items:center;gap:16px;margin-bottom:12px;transition:all 0.2s;text-decoration:none;}
+    .card:hover{transform:translateX(4px);box-shadow:0 6px 20px rgba(109,40,217,0.1);}
+    .card-icon{width:48px;height:48px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+    .card-info{flex:1;}
+    .card-title{font-size:15px;font-weight:700;color:#1e1b4b;margin-bottom:3px;}
+    .card-company{font-size:13px;color:#7c3aed;font-weight:600;margin-bottom:4px;}
+    .card-meta{display:flex;gap:16px;}
+    .meta-item{font-size:12px;color:#94a3b8;}
+    .viewed-time{font-size:12px;color:#94a3b8;flex-shrink:0;}
+    .apply-btn{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;font-size:12px;font-weight:600;padding:8px 16px;border-radius:10px;text-decoration:none;flex-shrink:0;box-shadow:0 3px 10px rgba(109,40,217,0.3);}
+    .empty-state{text-align:center;padding:4rem 2rem;background:#fff;border-radius:24px;border:2px dashed #ede9fe;}
+    .empty-icon{font-size:64px;margin-bottom:1rem;display:block;}
+    .empty-state h3{font-size:20px;font-weight:700;color:#1e1b4b;margin-bottom:8px;}
+    .empty-state p{font-size:14px;color:#94a3b8;margin-bottom:1.5rem;}
+    .empty-btn{display:inline-block;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;font-size:14px;font-weight:600;padding:12px 28px;border-radius:12px;text-decoration:none;}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo"><div class="nav-icon">🎯</div><span class="nav-title">Smart Internship Tracker</span></div>
+    <div class="nav-links">
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/analytics" class="nav-link">Analytics</a>
+      <a href="/recently-viewed" class="nav-link active">Recently Viewed</a>
+      <a href="/my-applications" class="nav-link">Applications</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/logout" class="nav-logout">Logout</a>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="page-header">
+      <div><h1>Recently Viewed</h1><p>Internships you have browsed recently</p></div>
+      <div class="header-emoji">🕐</div>
+    </div>
+    {% if recent %}
+      {% for i in recent %}
+      <div class="card" href="/internship/{{ i[0] }}" onclick="window.location='/internship/{{ i[0] }}'">
+        <div class="card-icon">🏢</div>
+        <div class="card-info">
+          <div class="card-title">{{ i[1] }}</div>
+          <div class="card-company">{{ i[2] }}</div>
+          <div class="card-meta">
+            <span class="meta-item">{{ i[4] }}</span>
+            <span class="meta-item">{{ i[5] }}</span>
+            <span class="meta-item">Deadline: {{ i[6] }}</span>
+          </div>
+        </div>
+        <div class="viewed-time">Viewed: {{ i[8].strftime('%d %b') if i[8] else '' }}</div>
+        <a href="{{ i[7] }}" class="apply-btn" target="_blank" onclick="event.stopPropagation()">Apply</a>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <span class="empty-icon">🕐</span>
+      <h3>No recently viewed internships!</h3>
+      <p>Start browsing internships and they will appear here.</p>
+      <a href="/dashboard" class="empty-btn">Browse Internships</a>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
